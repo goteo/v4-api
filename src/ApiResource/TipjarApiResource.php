@@ -9,6 +9,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Tipjar;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\Validator\NotExisting;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -40,6 +41,7 @@ class TipjarApiResource
      * Human readable, non white space, unique string.
      */
     #[Assert\NotBlank()]
+    #[NotExisting(Tipjar::class, 'name')]
     #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
     public string $name;
 }

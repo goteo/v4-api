@@ -4,9 +4,11 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
+use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
+use App\Validator\NotExisting;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
@@ -19,6 +21,7 @@ class ProjectCreationDto
     #[Assert\NotBlank()]
     #[Assert\Regex('/[a-zA-Z]{1,}/')]
     #[Assert\Length(min: 3)]
+    #[NotExisting(Project::class, 'title')]
     public string $title;
 
     /**

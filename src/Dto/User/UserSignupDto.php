@@ -2,7 +2,9 @@
 
 namespace App\Dto\User;
 
+use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Validator\NotExisting;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserSignupDto
@@ -12,6 +14,7 @@ final class UserSignupDto
      */
     #[Assert\NotBlank()]
     #[Assert\Email()]
+    #[NotExisting(User::class, 'email')]
     public string $email;
 
     /**

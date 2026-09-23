@@ -8,6 +8,7 @@ use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Mapping\Transformer\RawLinksMapTransformer;
+use App\Validator\NotExisting;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,12 +19,14 @@ final class UserUpdationDto
      */
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[NotExisting(User::class, 'handle')]
     public string $handle;
 
     /**
      * The User's given email address. Only available to themselves and platform administrators.
      */
     #[Assert\Email()]
+    #[NotExisting(User::class, 'email')]
     public string $email;
 
     /**
