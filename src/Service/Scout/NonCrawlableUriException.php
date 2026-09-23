@@ -4,13 +4,13 @@ namespace App\Service\Scout;
 
 use Psr\Http\Message\UriInterface;
 
-class FileUriException extends \Exception
+class NonCrawlableUriException extends \Exception
 {
     private UriInterface $uri;
 
     public function __construct(
         UriInterface $uri,
-        string $message = 'Cannot scout URLs to files (%s)',
+        string $message = 'Cannot scout %s: it is not a Web page',
         int $code = 0,
         ?\Throwable $previous = null,
     ) {
@@ -19,9 +19,6 @@ class FileUriException extends \Exception
         $this->uri = $uri;
     }
 
-    /**
-     * The URI to the file.
-     */
     public function getUri(): UriInterface
     {
         return $this->uri;

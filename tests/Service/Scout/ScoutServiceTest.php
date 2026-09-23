@@ -2,8 +2,8 @@
 
 namespace App\Tests\Service\Scout;
 
-use App\Service\Scout\FileUriException;
 use App\Service\Scout\InvalidUriException;
+use App\Service\Scout\NonCrawlableUriException;
 use App\Service\Scout\ScoutService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -38,17 +38,17 @@ class ScoutServiceTest extends KernelTestCase
     }
 
     /**
-     * @dataProvider providePathsToBinaryFiles
+     * @dataProvider provideNonCrawlablePaths
      */
-    public function testThrowsExceptionOnPathsToBinaryFiles(string $url)
+    public function testThrowsExceptionOnNonCrawlablePaths(string $url)
     {
-        $this->expectException(FileUriException::class);
-        $this->expectExceptionMessageMatches(\sprintf('/\(%s\)$/', \preg_quote($url, '/')));
+        $this->expectException(NonCrawlableUriException::class);
+        $this->expectExceptionMessageMatches(\sprintf('/%s/', \preg_quote($url, '/')));
 
         $this->scout->get($url);
     }
 
-    public function providePathsToBinaryFiles(): array
+    public function provideNonCrawlablePaths(): array
     {
         return [
             ['https://sialmaraz.es/wp-content/uploads/2025/01/MANIFESTACION-ALMARAZ-18_1.mp4'],
