@@ -10,7 +10,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
-use App\Dto\UserSignupDto;
+use App\Dto\User\UserSignupDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
