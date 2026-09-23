@@ -15,7 +15,7 @@ final class UserSignupDto
     public string $email;
 
     /**
-     * The auth password for the new User. Plaintext string,
+     * The authentication password for the new User. Plaintext string,
      * will be hashed by the API.
      */
     #[Assert\NotBlank()]
