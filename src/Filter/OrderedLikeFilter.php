@@ -33,6 +33,7 @@ final class OrderedLikeFilter extends AbstractFilter
     ): void {
         if (
             !$this->isPropertyEnabled($property, $resourceClass)
+            || !$this->isPropertyMapped($property, $resourceClass)
         ) {
             return;
         }
@@ -40,10 +41,18 @@ final class OrderedLikeFilter extends AbstractFilter
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $likeParameter = $queryNameGenerator->generateParameterName($property);
         $instrParameter = $queryNameGenerator->generateParameterName(sprintf('%s%s', $property, 'instr'));
+        $positionAlias = $queryNameGenerator->generateJoinAlias('position');
 
         $queryBuilder
             ->andWhere(sprintf('%s.%s LIKE :%s', $rootAlias, $property, $likeParameter))
-            ->addOrderBy(sprintf('INSTR(%s.%s, :%s)', $rootAlias, $property, $instrParameter), 'ASC')
+            ->addSelect(sprintf(
+                'INSTR(%s.%s, :%s) AS HIDDEN %s',
+                $rootAlias,
+                $property,
+                $instrParameter,
+                $positionAlias
+            ))
+            ->addOrderBy($positionAlias, 'ASC')
             ->addOrderBy(sprintf('%s.%s', $rootAlias, $property), 'ASC')
             ->setParameter($likeParameter, sprintf('%%%s%%', $value))
             ->setParameter($instrParameter, $value)
