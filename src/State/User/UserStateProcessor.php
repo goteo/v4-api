@@ -11,13 +11,16 @@ use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Mapping\AutoMapper;
+use App\Repository\User\UserRepository;
 use App\State\EntityStateProcessor;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private AutoMapper $autoMapper,
+        private UserRepository $userRepository,
         private UserPasswordHasherInterface $userPasswordHasher,
         private EntityStateProcessor $entityProcessor,
     ) {}
@@ -29,10 +32,13 @@ class UserStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, API\Operation $operation, array $uriVariables = [], array $context = [])
     {
-        /** @var UserApiResource */
-        $resource = $this->autoMapper->map($data, $context['previous_data']);
+        $user = $this->userRepository->find($context['previous_data']->id);
+        if (!$user) {
+            throw new NotFoundHttpException();
+        }
+
         /** @var User */
-        $user = $this->autoMapper->map($resource, User::class);
+        $user = $this->autoMapper->map($data, $user);
 
         if (isset($data->password)) {
             $user->setPassword($this->userPasswordHasher->hashPassword($user, $data->password));
