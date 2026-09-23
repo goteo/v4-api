@@ -11,6 +11,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\Dto\User\UserSignupDto;
+use App\Dto\User\UserUpdationDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
@@ -48,8 +49,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ]
 )]
-#[API\Patch(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
-#[API\Delete(securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)')]
+#[API\Patch(
+    input: UserUpdationDto::class,
+    securityPostDenormalize: 'is_granted("USER_EDIT", previous_object)'
+)]
+#[API\Delete(securityPostDenormalize: 'is_granted("ROLE_ADMIN", previous_object)')]
 #[API\ApiFilter(QFilter::class, properties: [
     'q' => [
         'email',
