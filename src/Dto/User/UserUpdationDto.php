@@ -3,8 +3,12 @@
 namespace App\Dto\User;
 
 use ApiPlatform\Metadata as API;
+use App\ApiResource\User\UserApiResource;
 use App\Entity\Territory;
+use App\Entity\User\User;
 use App\Entity\User\UserType;
+use App\Mapping\Transformer\RawLinksMapTransformer;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserUpdationDto
@@ -54,6 +58,8 @@ final class UserUpdationDto
      *
      * @var array<int, string>
      */
+    #[MapTo(User::class, transformer: RawLinksMapTransformer::class)]
+    #[MapTo(UserApiResource::class, transformer: RawLinksMapTransformer::class)]
     public array $links = [];
 
     /**
