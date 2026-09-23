@@ -38,10 +38,10 @@ class RawLinksMapTransformer implements PropertyTransformerInterface
         }
 
         $anchor = $nodes->item(0);
+        if (!$anchor instanceof \DOMElement) {
+            return null;
+        }
 
-        /**
-         * @disregard P103 Undefined method 'getAttribute'.
-         */
         return $anchor->getAttribute('rel');
     }
 }
