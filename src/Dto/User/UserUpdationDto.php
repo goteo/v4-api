@@ -61,9 +61,10 @@ final class UserUpdationDto
      *
      * @var array<int, string>
      */
+    #[Assert\All([new Assert\Url()])]
     #[MapTo(User::class, transformer: RawLinksMapTransformer::class)]
     #[MapTo(UserApiResource::class, transformer: RawLinksMapTransformer::class)]
-    public array $links = [];
+    public array $links;
 
     /**
      * ISO 3166 data about the Users's location territory.
