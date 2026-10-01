@@ -2,8 +2,8 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\Address;
 use App\Entity\Gateway\Charge;
-use App\Entity\ShippingAddress;
 use App\Entity\User\User;
 use App\Entity\UserOwnedInterface;
 use App\Entity\UserOwnedTrait;
@@ -39,8 +39,8 @@ class RewardClaim implements UserOwnedInterface
     #[ORM\Column(enumType: RewardClaimStatus::class)]
     private ?RewardClaimStatus $status = RewardClaimStatus::InPending;
 
-    #[ORM\Embedded(class: ShippingAddress::class)]
-    private ?ShippingAddress $shippingAddress = null;
+    #[ORM\ManyToOne]
+    private ?Address $address = null;
 
     public function getId(): ?int
     {
@@ -83,14 +83,14 @@ class RewardClaim implements UserOwnedInterface
         return $this;
     }
 
-    public function getShippingAddress(): ?ShippingAddress
+    public function getAddress(): ?Address
     {
-        return $this->shippingAddress;
+        return $this->address;
     }
 
-    public function setShippingAddress(?ShippingAddress $shippingAddress): static
+    public function setAddress(?Address $address): static
     {
-        $this->shippingAddress = $shippingAddress;
+        $this->address = $address;
 
         return $this;
     }

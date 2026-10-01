@@ -2,11 +2,11 @@
 
 namespace App\Benzina;
 
+use App\Entity\Address;
 use App\Entity\Gateway\Charge;
 use App\Entity\Project\Reward;
 use App\Entity\Project\RewardClaim;
 use App\Entity\Project\RewardClaimStatus;
-use App\Entity\ShippingAddress;
 use App\Entity\User\User;
 use App\Gateway\ChargeStatus;
 use App\Repository\Gateway\ChargeRepository;
@@ -87,7 +87,9 @@ class InvestRewardsPump implements PumpInterface
         };
 
         $claim->setStatus($status);
-        $claim->setShippingAddress($this->getAddress($record, $context));
+
+        $address = $this->getAddress($claim, $context);
+        $claim->setAddress($address);
 
         $this->persist($claim, $context);
     }
@@ -150,13 +152,13 @@ class InvestRewardsPump implements PumpInterface
         return $this->userRepository->findPumped($record['user']);
     }
 
-    private function getAddress(array $record, array $context): ?ShippingAddress
+    private function getAddress(RewardClaim $claim, array $context): ?Address
     {
         $query = $this->getDbConnection($context)->prepare(
             'SELECT * FROM `invest_address` a WHERE a.invest = :invest'
         );
 
-        $query->execute(['invest' => $record['invest']]);
+        $query->execute(['invest' => $claim->getCharge()->getMigratedId()]);
 
         $result = $query->fetch(\PDO::FETCH_ASSOC);
 
@@ -166,14 +168,15 @@ class InvestRewardsPump implements PumpInterface
 
         [$firstName, $lastName] = UserService::guessNames($result['name']);
 
-        return new ShippingAddress(
-            $firstName,
-            $lastName,
-            $result['address'],
-            null,
-            $result['location'],
-            $result['zipcode'],
-            $result['country']
-        );
+        $address = new Address();
+        $address->setUser($claim->getOwner());
+        $address->setFirstName($firstName);
+        $address->setLastName($lastName);
+        $address->setLine1($result['address']);
+        $address->setCity($result['location']);
+        $address->setPostCode($result['zipcode']);
+        $address->setCountry($result['country']);
+
+        return $address;
     }
 }
