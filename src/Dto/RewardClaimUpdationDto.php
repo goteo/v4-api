@@ -3,9 +3,8 @@
 namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
+use App\ApiResource\AddressApiResource;
 use App\Entity\Project\RewardClaimStatus;
-use App\Entity\ShippingAddress;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class RewardClaimUpdationDto
 {
@@ -19,7 +18,6 @@ class RewardClaimUpdationDto
     /**
      * If the reward is a physical object that needs to be delivered to an specific place.
      */
-    #[Assert\Valid()]
     #[API\ApiProperty(security: 'is_granted("CLAIM_OWNS", object)')]
-    public ?ShippingAddress $shippingAddress;
+    public ?AddressApiResource $address;
 }

@@ -5,13 +5,13 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\AddressApiResource;
 use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\RewardClaimCreationDto;
 use App\Dto\RewardClaimUpdationDto;
 use App\Entity\Project\RewardClaim;
 use App\Entity\Project\RewardClaimStatus;
-use App\Entity\ShippingAddress;
 use App\State\ApiResourceStateProvider;
 use App\State\Project\RewardClaimStateProcessor;
 
@@ -64,8 +64,9 @@ class RewardClaimApiResource
     /**
      * Only used when the reward is a physical object that needs to be shipped.
      */
-    #[API\ApiFilter(SearchFilter::class, properties: ['shippingAddress.city' => 'partial'])]
-    #[API\ApiFilter(SearchFilter::class, properties: ['shippingAddress.postCode' => 'partial'])]
-    #[API\ApiFilter(SearchFilter::class, properties: ['shippingAddress.country' => 'partial'])]
-    public ?ShippingAddress $shippingAddress;
+    #[API\ApiProperty(readableLink: true)]
+    #[API\ApiFilter(SearchFilter::class, properties: ['address.city' => 'partial'])]
+    #[API\ApiFilter(SearchFilter::class, properties: ['address.postCode' => 'partial'])]
+    #[API\ApiFilter(SearchFilter::class, properties: ['address.country' => 'partial'])]
+    public ?AddressApiResource $address;
 }
