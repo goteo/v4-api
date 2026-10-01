@@ -4,6 +4,7 @@ namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\AccountingOwnerInterface;
+use App\Entity\Address;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
@@ -124,6 +125,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /**
+     * @var Collection<int, Address>
+     */
+    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
+    private Collection $addresses;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -133,6 +140,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
 
         $this->emailConfirmed = false;
         $this->active = false;
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -390,6 +398,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setTerritory(?Territory $territory): static
     {
         $this->territory = $territory;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Address>
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(Address $address): static
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses->add($address);
+            $address->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(Address $address): static
+    {
+        if ($this->addresses->removeElement($address)) {
+            // set the owning side to null (unless already changed)
+            if ($address->getUser() === $this) {
+                $address->setUser(null);
+            }
+        }
 
         return $this;
     }
