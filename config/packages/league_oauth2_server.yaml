@@ -1,8 +1,8 @@
 league_oauth2_server:
     client:
         classname: App\Entity\OAuth2Client
-    access_token_ttl: '%env(OAUTH_ACCESS_TOKEN_TTL)%'
     authorization_server:
+        access_token_ttl: '%env(OAUTH_ACCESS_TOKEN_TTL)%'
         private_key: '%env(resolve:OAUTH_PRIVATE_KEY)%'
         private_key_passphrase: '%env(resolve:OAUTH_PASSPHRASE)%'
         encryption_key: '%env(resolve:OAUTH_ENCRYPTION_KEY)%'
