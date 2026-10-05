@@ -6,11 +6,6 @@
 parameters:
     env(OAUTH_ACCESS_TOKEN_TTL): PT1H
 
-when@prod:
-    parameters:
-        router.request_context.scheme: 'https'
-        asset.request_context.secure: true
-
 services:
     # default configuration for services in *this* file
     _defaults:
