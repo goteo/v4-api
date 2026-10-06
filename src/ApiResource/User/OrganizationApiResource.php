@@ -42,12 +42,13 @@ class OrganizationApiResource
     public UserApiResource $user;
 
     /**
-     * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
+     * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 2)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
     )]
-    #[Assert\NotBlank()]
     public string $taxId;
 
     /**
@@ -55,10 +56,11 @@ class OrganizationApiResource
      * as it appears on legal documents issued by or for this organization.\
      * Will be used as last option for the display name of the User.
      */
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
     )]
-    #[Assert\NotBlank()]
     public string $legalName;
 
     /**
@@ -66,6 +68,7 @@ class OrganizationApiResource
      * Might be similar to the legal name or completely different.\
      * Will be used as display name for the User when present.
      */
+    #[Assert\Length(min: 1)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
     )]

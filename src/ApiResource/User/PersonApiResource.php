@@ -7,6 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\Entity\User\Person;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Most times a real person is behind a User account,
@@ -43,6 +44,7 @@ class PersonApiResource
     /**
      * Personal ID for tax purposes. e.g: NIF, Steuer-ID, SSN, ITIN, etc.
      */
+    #[Assert\Length(min: 2)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
@@ -52,6 +54,7 @@ class PersonApiResource
      * First-part of the name of the person,
      * in most western conventions this is the given name(s). e.g: John, Juan, etc.
      */
+    #[Assert\Length(min: 1)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
@@ -59,8 +62,9 @@ class PersonApiResource
 
     /**
      * Last-part of the name of the person,
-     * in most western conventions this is the family name(s). e.g: Smith, Herrera García, etc.
+     * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
+    #[Assert\Length(min: 1)]
     #[API\ApiProperty(
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
