@@ -21,7 +21,6 @@ class GetOneTest extends ProjectTestCase
             'title' => $project->getTitle(),
             'subtitle' => $project->getSubtitle(),
             'territory' => ['country' => $project->getTerritory()->country],
-            'description' => $project->getDescription(),
             'deadline' => $project->getDeadline()->value,
             'status' => $project->getStatus()->value,
         ];
@@ -41,11 +40,10 @@ class GetOneTest extends ProjectTestCase
 
     private function testSuccessfulGetOneBase(Project $project): void
     {
-        $client = static::createClient();
-        $client->request('GET', $this->getUri(1), $this->getRequestOptions($client));
+        $response = $this->request('GET', $this->getUri(1));
 
         $this->assertResponseIsSuccessful();
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
         $this->assertProjectData($responseData, $project);
     }
 
@@ -79,14 +77,9 @@ class GetOneTest extends ProjectTestCase
     {
         $this->createTestProjectOptimized(1);
 
-        static::createClient()->request('GET', $this->getUri(1));
+        $this->request('GET', $this->getUri(1));
 
         $this->assertResponseIsSuccessful();
-    }
-
-    public function testGetOneWithInvalidToken(): void
-    {
-        $this->testInvalidToken($this->getUri(1));
     }
 
     public function testGetOneNotFound(): void

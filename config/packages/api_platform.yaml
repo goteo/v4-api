@@ -27,6 +27,9 @@ api_platform:
     defaults:
         stateless: true
         cache_headers:
+            public: true
+            max_age: 3600
+            shared_max_age: 3600
             vary: ["Content-Type", "Authorization", "Origin"]
         extra_properties:
             standard_put: true

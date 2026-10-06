@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use App\Entity\User\User;
 
+/**
+ * @property ?User $owner
+ */
 trait UserOwnedTrait
 {
     public function getOwner(): ?User
@@ -20,6 +23,6 @@ trait UserOwnedTrait
 
     public function isOwnedBy(User $user): bool
     {
-        return $this->getOwner()->getId() === $user->getId();
+        return $this->getOwner()?->getId() === $user->getId();
     }
 }

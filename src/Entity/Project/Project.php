@@ -42,6 +42,24 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 56, unique: true)]
+    #[Gedmo\Slug(fields: ['title'])]
+    private ?string $slug = null;
+
+    /**
+     * Since Projects can be recipients of funding, they are assigned an Accounting when created.
+     * A Project's Accounting represents how much money the Project has raised from the community.
+     */
+    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
+    private ?Accounting $accounting = null;
+
+    /**
+     * The User who created this Project.
+     */
+    #[ORM\ManyToOne(inversedBy: 'projects', cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
+
     /**
      * The main title for the project.
      */
@@ -49,16 +67,15 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[Gedmo\Translatable()]
     private ?string $title = null;
 
-    #[ORM\Column(length: 56, unique: true)]
-    #[Gedmo\Slug(fields: ['title'])]
-    private ?string $slug = null;
-
     /**
      * Secondary head-line for the project.
      */
     #[ORM\Column(length: 255)]
     #[Gedmo\Translatable()]
     private ?string $subtitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $cover = null;
 
     #[ORM\Column(enumType: ProjectDeadline::class)]
     private ?ProjectDeadline $deadline = ProjectDeadline::Minimum;
@@ -78,32 +95,27 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Embedded(class: Territory::class)]
     private ?Territory $territory;
 
-    /**
-     * The description body for the Project.
-     */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Gedmo\Translatable()]
-    private ?string $description = null;
+    private ?string $descBrief = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descAbout = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descGoal = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Gedmo\Translatable()]
+    private ?string $descTeam = null;
 
     /**
      * A video showcasing the Project.
      */
     #[ORM\Embedded(class: ProjectVideo::class)]
     private ?ProjectVideo $video = null;
-
-    /**
-     * Since Projects can be recipients of funding, they are assigned an Accounting when created.
-     * A Project's Accounting represents how much money the Project has raised from the community.
-     */
-    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
-    private ?Accounting $accounting = null;
-
-    /**
-     * The User who created this Project.
-     */
-    #[ORM\ManyToOne(inversedBy: 'projects', cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner = null;
 
     /**
      * The status of this Project as it goes through it's life-cycle.
@@ -145,7 +157,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Collaboration>
      */
-    #[ORM\OneToMany(targetEntity: Collaboration::class, mappedBy: 'project')]
+    #[ORM\OneToMany(targetEntity: Collaboration::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $collaborations;
 
     /**
@@ -188,18 +200,6 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
     public function getSlug(): ?string
     {
         return $this->slug;
@@ -212,6 +212,30 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
+    public function getAccounting(): ?Accounting
+    {
+        return $this->accounting;
+    }
+
+    public function setAccounting(?Accounting $accounting): static
+    {
+        $this->accounting = $accounting;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
     public function getSubtitle(): ?string
     {
         return $this->subtitle;
@@ -220,6 +244,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setSubtitle(string $subtitle): static
     {
         $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getCover(): ?string
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?string $cover): static
+    {
+        $this->cover = $cover;
 
         return $this;
     }
@@ -284,14 +320,50 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescBrief(): ?string
     {
-        return $this->description;
+        return $this->descBrief;
     }
 
-    public function setDescription(string $description): static
+    public function setDescBrief(?string $descBrief): static
     {
-        $this->description = $description;
+        $this->descBrief = $descBrief;
+
+        return $this;
+    }
+
+    public function getDescAbout(): ?string
+    {
+        return $this->descAbout;
+    }
+
+    public function setDescAbout(?string $descAbout): static
+    {
+        $this->descAbout = $descAbout;
+
+        return $this;
+    }
+
+    public function getDescGoal(): ?string
+    {
+        return $this->descGoal;
+    }
+
+    public function setDescGoal(?string $descGoal): static
+    {
+        $this->descGoal = $descGoal;
+
+        return $this;
+    }
+
+    public function getDescTeam(): ?string
+    {
+        return $this->descTeam;
+    }
+
+    public function setDescTeam(?string $descTeam): static
+    {
+        $this->descTeam = $descTeam;
 
         return $this;
     }
@@ -304,18 +376,6 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setVideo(?ProjectVideo $video): static
     {
         $this->video = $video;
-
-        return $this;
-    }
-
-    public function getAccounting(): ?Accounting
-    {
-        return $this->accounting;
-    }
-
-    public function setAccounting(?Accounting $accounting): static
-    {
-        $this->accounting = $accounting;
 
         return $this;
     }
@@ -506,6 +566,16 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getCollaborations(): Collection
     {
         return $this->collaborations;
+    }
+
+    /**
+     * @param Collection<int, Collaboration> $collaborations
+     */
+    public function setCollaborations(Collection $collaborations): static
+    {
+        $this->collaborations = $collaborations;
+
+        return $this;
     }
 
     public function addCollaboration(Collaboration $collaboration): static

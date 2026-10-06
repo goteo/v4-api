@@ -2,15 +2,16 @@
 
 namespace App\Benzina;
 
+use App\Entity\Territory;
 use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Library\Link;
+use App\Service\Project\TerritoryService;
 use App\Service\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
-use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validation;
@@ -18,12 +19,17 @@ use Symfony\Component\Validator\Validation;
 class UsersPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use DoctrinePumpTrait;
+    use DoctrineLoggablePumpTrait;
     use UsersPumpTrait;
+    use TerritoryPumpTrait;
+    use DatabasePumpTrait;
 
     public function __construct(
         private ManagerRegistry $managerRegistry,
-    ) {}
+        private TerritoryService $territoryService,
+    ) {
+        $this->setFlushBatchSize(8);
+    }
 
     public function supports(mixed $sample): bool
     {
@@ -37,7 +43,7 @@ class UsersPump implements PumpInterface
     public function pump(mixed $record, array $context): void
     {
         $user = new User();
-        $user = $this->processUser($user, $record);
+        $user = $this->processUser($user, $record, $context);
 
         try {
             $this->persist($user, $context);
@@ -58,7 +64,7 @@ class UsersPump implements PumpInterface
             }
 
             $user = new User();
-            $user = $this->processUser($user, $record);
+            $user = $this->processUser($user, $record, $context);
             $user->setHandle(UserService::asHandle($record['id'], 16, 255));
 
             $this->persist($user, $context);
@@ -67,7 +73,7 @@ class UsersPump implements PumpInterface
         }
     }
 
-    private function processUser(User $user, array $record): User
+    private function processUser(User $user, array $record, array $context): User
     {
         $user->setHandle($this->buildHandle($record));
         $user->setPassword($record['password'] ?? '');
@@ -80,6 +86,10 @@ class UsersPump implements PumpInterface
         $user->setDateUpdated(new \DateTime());
         $user->setType($this->getUserType($record));
         $user->setLinks($this->getLinks($record));
+        $user->setTerritory($this->getTerritory($record));
+        $user->setDescription($record['about']);
+        $user->setRoles($this->getRoles($record, $context));
+        $user->setAvatar($this->getAvatar($record));
 
         match ($user->getType()) {
             UserType::Individual => $user = $this->setUserPerson($record, $user),
@@ -130,25 +140,7 @@ class UsersPump implements PumpInterface
 
     private function setUserPerson(array $record, User $user): User
     {
-        $namePieces = \explode(' ', $record['name']);
-        $namePiecesCount = \count($namePieces);
-
-        $firstName = $record['name'];
-        $lastName = '';
-
-        if ($namePiecesCount === 2) {
-            [$firstName, $lastName] = $namePieces;
-        }
-
-        if ($namePiecesCount === 3) {
-            $firstName = $namePieces[0];
-            $lastName = \join(' ', \array_slice($namePieces, 1));
-        }
-
-        if ($namePiecesCount > 3) {
-            $firstName = \join(' ', \array_slice($namePieces, 0, 2));
-            $lastName = \join(' ', \array_slice($namePieces, 2));
-        }
+        [$firstName, $lastName] = UserService::guessNames($record['name']);
 
         $person = new Person();
         $person->setFirstName($firstName);
@@ -200,5 +192,59 @@ class UsersPump implements PumpInterface
         }
 
         return $links;
+    }
+
+    private function getTerritory(array $record): Territory
+    {
+        if ($record['location'] === null) {
+            return Territory::unknown();
+        }
+
+        $cleanAddress = $this->cleanLocation($record['location'], 2);
+
+        if ($cleanAddress === '') {
+            return Territory::unknown($record['location']);
+        }
+
+        return $this->territoryService->search($cleanAddress);
+    }
+
+    private function getRoles(array $record, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `user_role` r WHERE r.user_id = :user'
+        );
+
+        $query->execute(['user' => $record['id']]);
+
+        $results = $query->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (!$results || empty($results)) {
+            return [];
+        }
+
+        $roles = [];
+        foreach ($results as $result) {
+            if (in_array($result['role_id'], ['superadmin', 'manager'])) {
+                $roles[] = 'ROLE_ADMIN';
+            }
+        }
+
+        return $roles;
+    }
+
+    private function getAvatar(array $record): ?string
+    {
+        $image = $record['avatar'];
+
+        if ($image === null || $image === '') {
+            return null;
+        }
+
+        if (!\str_contains($image, '.')) {
+            return null;
+        }
+
+        return \sprintf('https://s3.eu-west-1.amazonaws.com/goteoassets.org/images/%s', $image);
     }
 }

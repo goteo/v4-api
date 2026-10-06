@@ -49,9 +49,21 @@ ENV PHP_SESSION_SAVE_PATH=
 ENV PHP_DISPLAY_ERRORS=0
 ENV PHP_DISPLAY_STARTUP_ERRORS=0
 
+FROM node:24-alpine AS assets
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
 FROM system-setup AS app-setup
 
 COPY . /app
+COPY --from=assets /app/public/build /app/public/build
+
 RUN chown -R nginx:nginx /app
 
 COPY ./docker/main/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -65,6 +77,6 @@ RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 EXPOSE 80
 
 HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
- CMD curl -s -o /dev/null -f http://localhost/v4/index.json || exit 1
+ CMD curl -s -o /dev/null -f http://localhost/v4/ping || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

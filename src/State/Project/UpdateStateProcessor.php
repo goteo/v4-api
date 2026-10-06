@@ -2,13 +2,14 @@
 
 namespace App\State\Project;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\UpdateApiResource;
 use App\Entity\Project\Update;
 use App\Mapping\AutoMapper;
-use App\Service\Auth\AuthService;
 use App\State\EntityStateProcessor;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class UpdateStateProcessor implements ProcessorInterface
@@ -16,7 +17,7 @@ class UpdateStateProcessor implements ProcessorInterface
     public function __construct(
         private EntityStateProcessor $entityStateProcessor,
         private AutoMapper $autoMapper,
-        private AuthService $authService,
+        private Security $security,
     ) {}
 
     /**
@@ -29,7 +30,8 @@ class UpdateStateProcessor implements ProcessorInterface
         /** @var Update */
         $update = $this->autoMapper->map($data, Update::class);
 
-        $user = $this->authService->getUser();
+        $user = $this->security->getUser();
+
         if (!$user) {
             throw new AuthenticationException();
         }
@@ -39,6 +41,10 @@ class UpdateStateProcessor implements ProcessorInterface
         }
 
         $update = $this->entityStateProcessor->process($update, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         return $this->autoMapper->map($update, $data);
     }

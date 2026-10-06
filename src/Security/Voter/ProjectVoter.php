@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Project\ProjectApiResource;
+use App\Entity\Project\ProjectStatus;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -47,6 +48,15 @@ final class ProjectVoter extends Voter
             return true;
         }
 
-        return $this->isOwnerOf($project, $user);
+        if (!$this->isOwnerOf($project, $user)) {
+            return false;
+        }
+
+        return in_array($project->status, [
+            ProjectStatus::InDraft,
+            ProjectStatus::InCampaignReviewToChange,
+            ProjectStatus::ToCampaign,
+            ProjectStatus::InCampaign,
+        ]);
     }
 }

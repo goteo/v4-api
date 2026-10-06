@@ -3,9 +3,10 @@
 namespace App\Security\Voter;
 
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\Project\ProjectApiResource;
 use App\ApiResource\User\UserApiResource;
-use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\User\User;
+use App\Entity\UserOwnedInterface;
 
 trait UserOwnedVoterTrait
 {
@@ -29,6 +30,10 @@ trait UserOwnedVoterTrait
 
         if ($subject instanceof AccountingApiResource) {
             return $subject->id === $user->getAccounting()->getId();
+        }
+
+        if ($subject instanceof ProjectApiResource) {
+            return $subject->owner->id === $user->getId();
         }
 
         if ($subject instanceof UserOwnedInterface) {

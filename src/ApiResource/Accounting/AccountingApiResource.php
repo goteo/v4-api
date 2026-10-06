@@ -4,7 +4,7 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\Entity\Accounting\Accounting;
 use App\Mapping\Transformer\AccountingOwnerMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
@@ -28,9 +28,9 @@ use AutoMapper\Attribute\MapTo;
 )]
 #[API\GetCollection()]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class AccountingApiResource
 {
+    #[API\ApiProperty(identifier: true)]
     public int $id;
 
     /**
@@ -51,5 +51,5 @@ class AccountingApiResource
     public string $currency;
 
     #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object)')]
-    public MoneyWithConversion $balance;
+    public MoneyOutput $balance;
 }

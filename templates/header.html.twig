@@ -1,0 +1,84 @@
+<header class="sticky top-0 z-100 w-full px-2 py-3 md:px-6 md:py-8">
+	<div class="mx-auto max-w-360 px-2">
+		<div class="border-grey flex flex-col rounded-xl border bg-white/50 backdrop-blur-xl transition-all duration-300"
+			id="header-container">
+			<div class="flex items-center justify-between px-2 py-3 md:px-4 md:py-6" id="header-main">
+				<div class="flex items-center gap-2 md:gap-4">
+					<a href="/" class="shrink-0">
+						<svg width="97" height="24" viewbox="0 0 97 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M19.8701 7.67198C18.4595 7.81705 16.9816 7.8935 15.5572 8.02467C15.2749 7.55819 14.9676 7.16902 14.7414 6.85108C14.2951 6.22563 13.4008 5.40125 12.5271 5.092C8.78915 3.77074 4.94931 6.30468 4.48573 10.4865C4.06359 14.2835 5.60971 18.2143 8.79778 19.0474C12.5617 20.0325 15.1817 17.6193 15.8015 14.7239C14.3961 14.7239 12.4926 14.7821 10.8955 14.7066C10.8955 13.4948 10.8955 12.2847 10.8955 11.0703C14.0422 11.0703 17.1897 11.0703 20.3354 11.0703C20.3225 15.7464 19.3927 18.5922 17.1888 20.6874C13.4327 24.2595 6.56622 23.8659 3.08636 20.452C0.864293 18.2716 -0.271774 14.8291 0.0554068 10.4813C0.435247 5.45164 3.72777 1.36449 9.37963 0.864131C15.2154 0.351608 18.6486 3.23302 19.8701 7.67198Z"
+								class="fill-black"></path>
+							<path
+								d="M31.7556 0.987442C38.1507 0.661686 42.7028 5.38297 42.7131 11.8946C42.7269 18.9031 37.7795 23.1527 32.1061 23.1527C26.4801 23.1536 22.484 19.096 21.9661 13.771C21.2591 6.45492 25.2232 1.31841 31.7556 0.987442ZM26.8626 15.4119C27.6542 17.4933 29.6052 19.122 32.1069 19.1655C40.3823 19.3123 40.2744 3.84888 31.5242 4.97469C27.4608 5.49677 25.0134 10.5577 26.8626 15.4119Z"
+								class="fill-black"></path>
+							<path
+								d="M85.4884 0.98751C91.4234 0.661755 95.8977 4.71502 96.4433 10.3701C97.1287 17.4464 92.7735 23.1528 85.9554 23.1528C79.6388 23.1537 75.7127 18.3099 75.6988 12.2456C75.685 6.0137 79.3047 1.32456 85.4884 0.98751ZM83.0418 5.67839C78.7376 8.41995 79.0224 19.2107 86.0719 19.1655C91.3413 19.1308 93.7637 11.9068 90.9676 7.55474C89.9161 5.92075 87.8537 4.59341 85.2561 4.97476C84.0847 5.14589 83.6686 5.27706 83.0418 5.67839Z"
+								class="fill-black"></path>
+							<path
+								d="M58.2159 1.22114C58.2159 2.55109 58.2159 3.88018 58.2159 5.20926C56.39 5.20926 54.5642 5.20926 52.7375 5.20926C52.7375 11.0346 52.7375 16.8591 52.7375 22.6845C51.2985 22.6845 49.8628 22.6845 48.4246 22.6845C48.4246 16.8974 48.4246 11.0216 48.4246 5.23619C46.6799 5.23619 44.8576 5.20926 43.0637 5.20926C43.0637 3.77072 43.0378 2.58932 43.0378 1.22114C48.0482 1.22114 53.2028 1.22114 58.2159 1.22114Z"
+								class="fill-black"></path>
+							<path
+								d="M74.0658 1.22117C74.0658 2.51204 74.1193 3.9054 74.1193 5.19539C71.0944 5.19539 68.2094 5.20929 65.0921 5.20929C65.0921 6.73383 65.0921 8.39475 65.0921 9.91755C67.7648 9.91755 70.5152 9.90104 73.484 9.90104C73.484 11.1893 73.484 12.4802 73.484 13.7701C70.6878 13.7701 67.8908 13.7701 65.0921 13.7701C65.0921 15.5787 65.0532 17.3891 65.0532 18.8372C67.9633 18.8372 70.314 18.8128 73.9493 18.8128C73.9493 20.1028 73.9493 21.3937 73.9493 22.6837C69.5215 22.6837 65.0921 22.6837 60.6644 22.6837C60.7403 15.5692 60.5072 8.14109 60.7792 1.22031C65.2078 1.22117 69.6355 1.22117 74.0658 1.22117Z"
+								class="fill-black"></path>
+						</svg>
+					</a>
+				</div>
+				<nav>
+					<ul class="flex items-center gap-1 md:gap-4">
+						{% if app.user %}
+						<div class="relative inline-block w-full">
+							<button id="user-user-dropdown-btn" class="flex w-full cursor-pointer items-center gap-1">
+								<svg width="32" height="32" viewbox="0 0 32 32" fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path
+										d="M16 31C24.2843 31 31 24.2843 31 16C31 7.71573 24.2843 1 16 1C7.71573 1 1 7.71573 1 16C1 24.2843 7.71573 31 16 31ZM16 31C11.499 31.0002 7.5 28.8 5.09535 26.3C5.09535 23.8 9.75 19.75 16 19.75C22.25 19.75 26.4096 24.3 26.4096 26.8C24 29.3 20.501 30.9998 16 31ZM21 12.25C21 15.0114 18.7614 17.25 16 17.25C13.2386 17.25 11 15.0114 11 12.25C11 9.48858 13.2386 7.25 16 7.25C18.7614 7.25 21 9.48858 21 12.25Z"
+										class="stroke-secondary" stroke-width="2" stroke-linecap="round"
+										stroke-linejoin="round"></path>
+								</svg>
+								<span class="hidden sm:inline">
+									{{ 'greeting' | trans({ '%name%': app.user.person.firstName }) }}
+								</span>
+							</button>
+
+							<div id="user-dropdown" style="right: 0;"
+								class="absolute top-full mt-2 min-w-32 max-w-[calc(100vw-1rem)] flex-col rounded-lg bg-white p-2 shadow-lg hidden">
+								<a href="{{ logout_path() }}" class="block px-4 py-2 hover:bg-gray-100">
+									{{ 'login.logout' | trans }}
+								</a>
+							</div>
+						</div>
+						{% endif %}
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+	<script>
+		function initHeader() {
+			const root = document.querySelector("header");
+			if (!root) return;
+
+			const btn = root.querySelector("#user-user-dropdown-btn");
+			const dropdown = root.querySelector("#user-dropdown");
+
+			if (!btn || !dropdown) return;
+
+			if (btn.dataset.bound) return;
+			btn.dataset.bound = "true";
+
+			btn.addEventListener("click", function (e) {
+				e.stopPropagation();
+				dropdown.classList.toggle("hidden");
+			});
+
+			document.addEventListener("click", function (e) {
+				if (!root.contains(e.target)) {
+					dropdown.classList.add("hidden");
+				}
+			});
+		}
+
+		initHeader();
+	</script>
+</header>

@@ -39,7 +39,7 @@ class UserDisplayNameMapTransformer implements PropertyTransformerInterface
         $name = $org->getBusinessName();
 
         if (empty($name)) {
-            $name = $org->getBusinessName();
+            $name = $org->getLegalName();
         }
 
         return $name ?? '';

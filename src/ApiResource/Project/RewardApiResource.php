@@ -8,7 +8,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyInput;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\Entity\Project\Reward;
@@ -58,11 +58,17 @@ class RewardApiResource
     public ?string $description = null;
 
     /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
      * The minimal monetary sum to be able to claim this reward.
      */
     #[Assert\NotBlank()]
     #[API\ApiFilter(OrderFilter::class, properties: ['money.amount'])]
-    public MoneyWithConversion $money;
+    public MoneyInput $money;
 
     /**
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.

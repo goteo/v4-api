@@ -6,14 +6,16 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Factory\Project\ProjectFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ProjectCalendarTest extends ApiTestCase
 {
     use ResetDatabase;
+    use Factories;
 
     private EntityManagerInterface $entityManager;
     private User $owner;
@@ -40,16 +42,10 @@ class ProjectCalendarTest extends ApiTestCase
 
     private function createTestProject(ProjectDeadline $deadline = ProjectDeadline::Minimum): Project
     {
-        $project = new Project();
-        $project->setTitle('Test Project');
-        $project->setSubtitle('Test Project Subtitle');
-        $project->setDeadline($deadline);
-        $project->setDescription('Test Project Description');
-        $project->setTerritory(new Territory('ES'));
-        $project->setOwner($this->owner);
-        $project->setStatus(ProjectStatus::InCampaignReview);
-
-        return $project;
+        return ProjectFactory::createOne([
+            'owner' => $this->owner,
+            'deadline' => $deadline,
+        ])->_real();
     }
 
     private function createProjectAndSetToInCampaign(
@@ -104,6 +100,8 @@ class ProjectCalendarTest extends ApiTestCase
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
-        $this->assertNull($project->getCalendar());
+        $this->assertNull($project->getCalendar()->release);
+        $this->assertNull($project->getCalendar()->minimum);
+        $this->assertNull($project->getCalendar()->optimum);
     }
 }

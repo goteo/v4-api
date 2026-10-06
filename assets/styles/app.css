@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import "@fontsource/karla";
+
+@source not "../../public";
+
+@theme {
+    /* Light Theme (default) */
+    --color-primary: #59E9D3;
+    --color-secondary: #462949;
+    --color-tertiary: #E94668;
+    --color-content: #575757;
+
+    /* Extended color tokens for components */
+    --color-white: #FBFBFB;
+    --color-black: #3D3D3D;
+    --color-grey: #F3F3EF;
+    --color-purple-soft: #FAF9FF;
+    --color-purple-medium: #F6F5FF;
+
+    --color-variant1: #E6E5F7;
+    --color-variant2: #99FFCC;
+    --color-variant3: #72D8FF;
+    --color-variant4: #FFFF99;
+
+    --color-semantic-error: #E9B1BD;
+    --color-semantic-success: #B1E9E1;
+    --color-semantic-notification: #C2EEFF;
+    --color-semantic-warning: #FFFFC2;
+
+    --font-body: "Karla", sans-serif;
+    --body-regular: 1rem;
+    --body-small: 0.875rem;
+}

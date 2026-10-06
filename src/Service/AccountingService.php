@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\ApiResource\Accounting\AccountingBalancePoint;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\User\User;
@@ -72,7 +72,7 @@ class AccountingService
         $point = new AccountingBalancePoint();
         $point->start = $lowerBound;
         $point->end = $upperBound;
-        $point->balance = MoneyWithConversion::of($balance);
+        $point->balance = MoneyOutput::of($balance);
         $point->length = count($transactions);
 
         return $point;

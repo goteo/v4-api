@@ -5,6 +5,7 @@ namespace App\Entity\Project;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\EmbeddableMoney;
+use App\Entity\Matchfunding\MatchCall;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\SupportRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -50,6 +51,9 @@ class Support
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $matchfunding = null;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
@@ -68,6 +72,7 @@ class Support
     public function setOrigin(?Accounting $origin): static
     {
         $this->origin = $origin;
+        $this->matchfunding = $origin->getOwnerClass() === MatchCall::class;
 
         return $this;
     }
@@ -142,5 +147,10 @@ class Support
         $this->message = $message;
 
         return $this;
+    }
+
+    public function isMatchfunding(): ?bool
+    {
+        return $this->matchfunding;
     }
 }

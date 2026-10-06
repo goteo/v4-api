@@ -3,10 +3,11 @@
 namespace App\EventListener;
 
 use App\Entity\Gateway\Charge;
+use App\Entity\Project\Project;
 use App\Gateway\ChargeStatus;
 use App\Service\Matchfunding\MatchfundingService;
+use App\Service\Project\SupportService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
@@ -15,52 +16,45 @@ use Doctrine\ORM\Events;
     method: 'preUpdate',
     entity: Charge::class
 )]
-#[AsEntityListener(
-    event: Events::postUpdate,
-    method: 'postUpdate',
-    entity: Charge::class
-)]
 final class MatchfundingListener
 {
-    private ?Charge $charge = null;
+    use RecomputingListenerTrait;
 
     public function __construct(
         private MatchfundingService $matchfunding,
-        private EntityManagerInterface $entityManager,
+        private SupportService $supportService,
     ) {}
 
-    public function preUpdate(Charge $charge, PreUpdateEventArgs $event)
+    public function preUpdate(Charge $charge, PreUpdateEventArgs $event): void
     {
-        $this->charge = null;
-
-        if (count($event->getEntityChangeSet()) === 0) {
+        if (!$event->hasChangedField('status')) {
             return;
         }
 
-        if ($charge->getStatus() !== ChargeStatus::InCharge) {
+        if ($event->getNewValue('status') !== ChargeStatus::InCharge) {
+            return;
+        }
+
+        $target = $charge->getTarget();
+        if (!$target instanceof Project) {
             return;
         }
 
         $transactions = $this->matchfunding->match($charge);
-
-        if (\count($transactions) > 0) {
-            foreach ($transactions as $transaction) {
-                $charge->addTransaction($transaction);
-            }
-
-            $this->charge = $charge;
-        }
-    }
-
-    public function postUpdate()
-    {
-        if ($this->charge === null) {
+        if ($transactions === []) {
             return;
         }
 
-        $this->entityManager->persist($this->charge);
-        $this->entityManager->flush();
+        $em = $event->getObjectManager();
+        foreach ($transactions as $transaction) {
+            $support = $this->supportService->getSupport($target, $charge->getCheckout()->getOrigin());
+            $support = $this->supportService->withTransactions($support, [$transaction]);
+            $this->computeChangeSet($em, $support);
 
-        $this->charge = null;
+            $matchSupport = $this->supportService->getSupport($target, $transaction->getOrigin());
+            $matchSupport = $this->supportService->withTransactions($matchSupport, [$transaction]);
+            $matchSupport->setAnonymous(false);
+            $this->computeChangeSet($em, $matchSupport);
+        }
     }
 }

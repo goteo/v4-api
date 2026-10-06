@@ -4,6 +4,7 @@ namespace App\Repository\User;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\User\User;
+use App\Repository\DedupedTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -22,6 +23,8 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    use DedupedTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
@@ -57,6 +60,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getOneOrNullResult();
     }
 
+    public function findOneByIdOrHandle(string $idOrHandle): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.id = :val')
+            ->orWhere('u.handle = :val')
+            ->setParameter('val', $idOrHandle)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findOneByAccounting(Accounting $accounting): ?User
     {
         return $this->createQueryBuilder('u')
@@ -78,6 +91,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    public function countLikeHandle(string $handle): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.handle LIKE :handle')
+            ->setParameter('handle', \sprintf('%%%s%%', $handle))
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**

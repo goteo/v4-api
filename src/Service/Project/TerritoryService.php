@@ -16,7 +16,7 @@ class TerritoryService
         $search = $this->nominatimService->search($query);
 
         if (empty($search)) {
-            return Territory::unknown();
+            return Territory::unknown($query);
         }
 
         $result = $search[0];
@@ -25,17 +25,16 @@ class TerritoryService
             throw new \Exception("Key 'address' not found in Nominatim result. Did you forget to pass `addressDetails = true`?");
         }
 
-        $address = $result['address'];
-
-        if (!\array_key_exists('country_code', $address)) {
-            return Territory::unknown();
+        if (!\array_key_exists('country_code', $result['address'])) {
+            return Territory::unknown($query);
         }
 
-        return $this->processResultAddress($address);
+        return $this->processResult($result);
     }
 
-    private function processResultAddress(array $address): Territory
+    private function processResult(array $result): Territory
     {
+        $address = $result['address'];
         $country = \strtoupper($address['country_code']);
 
         $subLvl1 = null;
@@ -56,6 +55,11 @@ class TerritoryService
             }
         }
 
-        return new Territory($country, $subLvl1, $subLvl2);
+        return new Territory(
+            $country,
+            $subLvl1,
+            $subLvl2,
+            $result['display_name']
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\ApiResource;
 
 use ApiPlatform\Metadata as API;
+use AutoMapper\Attribute\MapFrom;
 
 trait LocalizedApiResourceTrait
 {
@@ -12,5 +13,11 @@ trait LocalizedApiResourceTrait
      * @var array<string>
      */
     #[API\ApiProperty(writable: false)]
-    public array $locales;
+    #[MapFrom(property: 'locales')]
+    public array $locales = [];
+
+    public function setLocales(array $locales): void
+    {
+        $this->locales = $locales;
+    }
 }

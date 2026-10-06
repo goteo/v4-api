@@ -25,7 +25,12 @@ enum ProjectStatus: string
     /**
      * Owner requested to do changes by the campaign reviewer.
      */
-    case InCampaignReviewRequestChange = 'in_campaign_review.request_change';
+    case InCampaignReviewToChange = 'in_campaign_review.to_change';
+
+    /**
+     * Owner finished with requested changes and is ready for review again.
+     */
+    case InCampaignReviewToReview = 'in_campaign_review.to_review';
 
     /**
      * Project is KO for campaign by the reviewer, final.
@@ -48,6 +53,11 @@ enum ProjectStatus: string
     case CampaignFailed = 'campaign.failed';
 
     /**
+     * Project was pulled out of campaign, final.
+     */
+    case CampaignCancelled = 'campaign.cancelled';
+
+    /**
      * Project raised enough funds, can move forward.
      */
     case ToFundingReview = 'to_funding_review';
@@ -60,7 +70,12 @@ enum ProjectStatus: string
     /**
      * Owner requested to do changes by the financial reviewer.
      */
-    case InFundingReviewRequestChange = 'in_funding_review.request_change';
+    case InFundingReviewToChange = 'in_funding_review.to_change';
+
+    /**
+     * Owner finished with requested changes and is ready for financial review again.
+     */
+    case InFundingReviewToReview = 'in_funding_review.to_review';
 
     /**
      * Project is KO for funding by the reviewer, final.

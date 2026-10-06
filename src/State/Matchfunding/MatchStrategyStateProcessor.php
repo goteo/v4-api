@@ -42,6 +42,10 @@ class MatchStrategyStateProcessor implements ProcessorInterface
 
         $strategy = $this->entityProcessor->process($strategy, $operation, $uriVariables, $context);
 
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
+
         if ($strategy === null) {
             return null;
         }

@@ -2,6 +2,7 @@
 
 namespace App\Benzina;
 
+use App\Entity\Project\Collaboration;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
@@ -11,27 +12,25 @@ use App\Entity\Project\Update;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Repository\Project\ProjectRepository;
-use App\Repository\User\UserRepository;
 use App\Service\Project\TerritoryService;
-use App\Service\Scout\FileUriException;
+use App\Service\Scout\NonCrawlableUriException;
 use App\Service\Scout\ScoutService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
-use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
 class ProjectsPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use DoctrinePumpTrait;
+    use DoctrineLoggablePumpTrait;
     use DatabasePumpTrait;
     use ProjectsPumpTrait;
     use LocalizedPumpTrait;
+    use TerritoryPumpTrait;
 
     public function __construct(
         private ProjectRepository $projectRepository,
-        private UserRepository $userRepository,
+        private PumpedUserRepository $userRepository,
         private TerritoryService $territoryService,
         private ScoutService $scoutService,
     ) {}
@@ -57,7 +56,7 @@ class ProjectsPump implements PumpInterface
         }
 
         $created = new \DateTime($record['created']);
-        if (\in_array($status, [ProjectStatus::InDraft]) && $created < new \DateTime('2025-01-01')) {
+        if (\in_array($status, [ProjectStatus::InDraft]) && $created < new \DateTime('2026-01-01')) {
             return;
         }
 
@@ -73,7 +72,6 @@ class ProjectsPump implements PumpInterface
 
         $project->setSlug($record['id']);
         $project->setTerritory($this->getProjectTerritory($record));
-        $project->setVideo($this->getProjectVideo($record));
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
@@ -82,6 +80,18 @@ class ProjectsPump implements PumpInterface
         $project->setDateUpdated(new \DateTime());
         $project->setTranslatableLocale($record['lang']);
         $project->setUpdates(new ArrayCollection($this->getProjectUpdates($project, $context)));
+        $project->setCollaborations(new ArrayCollection($this->getProjectCollaborations($project, $context)));
+
+        $video = $this->getProjectVideo($record);
+        if ($video !== null) {
+            $project->setVideo($video);
+            $project->setCover($video->cover);
+        }
+
+        $cover = $this->getProjectCover($record, $context);
+        if ($cover !== null) {
+            $project->setCover($cover);
+        }
 
         $conf = $this->getProjectConf($project, $context);
 
@@ -91,7 +101,10 @@ class ProjectsPump implements PumpInterface
         $project->addLocale($record['lang']);
         $project->setTitle($record['name'] ?? '');
         $project->setSubtitle($record['subtitle'] ?? '');
-        $project->setDescription($this->getProjectDescription($record));
+        $project->setDescBrief($record['description']);
+        $project->setDescAbout($record['about']);
+        $project->setDescGoal($record['motivation']);
+        $project->setDescTeam($record['related']);
 
         $this->setPreventFlushAndClear(true);
         $this->persist($project, $context);
@@ -102,7 +115,10 @@ class ProjectsPump implements PumpInterface
         $this->localize($project, $localizations, $context, [
             'title' => fn($l) => $l['name'],
             'subtitle' => fn($l) => $l['subtitle'],
-            'description' => fn($l) => $this->getProjectDescription($l),
+            'descBrief' => fn($l) => $l['description'],
+            'descAbout' => fn($l) => $l['about'],
+            'descGoal' => fn($l) => $l['motivation'],
+            'descTeam' => fn($l) => $l['related'],
         ]);
     }
 
@@ -113,41 +129,7 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectOwner(array $record): ?User
     {
-        $criteria = new Criteria();
-        $criteria
-            ->orWhere($criteria->expr()->eq('migratedId', $record['owner']))
-            ->orWhere($criteria->expr()->contains('dedupedIds', $record['owner']))
-            ->setMaxResults(1);
-
-        return $this->userRepository->matching($criteria)->first() ?? null;
-    }
-
-    private function getProjectDescription(array $record): string
-    {
-        $lang = $record['lang'];
-        $hasTitles = \array_key_exists($lang, self::PROJECT_DESC_TITLES);
-
-        $description = $record['description'];
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['about']);
-        }
-
-        $description .= \sprintf("\n%s", $record['about']);
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['motivation']);
-        }
-
-        $description .= \sprintf("\n\n%s", $record['motivation']);
-
-        if ($hasTitles) {
-            $description .= \sprintf("\n\n## %s", self::PROJECT_DESC_TITLES[$lang]['related']);
-        }
-
-        $description .= \sprintf("\n%s", $record['related']);
-
-        return $description;
+        return $this->userRepository->findPumped($record['owner']);
     }
 
     private function getProjectLocalizations(Project $project, array $context): array
@@ -193,14 +175,30 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectTerritory(array $record): Territory
     {
-        if ($record['project_location'] === null) {
+        $address = $record['project_location'];
+
+        if ($address === null) {
+            if ($record['address'] !== null) {
+                $address = $record['address'];
+            }
+
+            if ($record['location'] !== null) {
+                $address = $record['location'];
+            }
+
+            if ($record['address'] !== null && $record['location'] !== null) {
+                $address = \sprintf('%s, %s', $record['address'], $record['location']);
+            }
+        }
+
+        if ($address === null) {
             return Territory::unknown();
         }
 
-        $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
+        $cleanAddress = $this->cleanLocation($address, 2);
 
         if ($cleanAddress === '') {
-            return Territory::unknown();
+            return Territory::unknown($address);
         }
 
         return $this->territoryService->search($cleanAddress);
@@ -208,12 +206,14 @@ class ProjectsPump implements PumpInterface
 
     private function getProjectVideoSource(array $record): ?string
     {
-        if ($record['video'] !== null) {
-            return \trim($record['video']);
+        $video = \trim($record['video']);
+        if ($video !== '' && $record['video'] !== null) {
+            return $video;
         }
 
-        if ($record['media'] !== null) {
-            return \trim($record['media']);
+        $media = \trim($record['media']);
+        if ($media !== '' && $record['media'] !== null) {
+            return $media;
         }
 
         return null;
@@ -239,7 +239,7 @@ class ProjectsPump implements PumpInterface
             }
 
             return new ProjectVideo($info->url, $info->cover ?? $info->image, $info->image);
-        } catch (FileUriException $e) {
+        } catch (NonCrawlableUriException $e) {
             return new ProjectVideo($e->getUri());
         } catch (\Exception $e) {
             return null;
@@ -344,5 +344,67 @@ class ProjectsPump implements PumpInterface
         }
 
         return ProjectDeadline::Minimum;
+    }
+
+    private function getImageSource(array $record, array $context): ?string
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `project_image` WHERE `project` = :project ORDER BY `order` ASC'
+        );
+
+        $query->execute(['project' => $record['id']]);
+
+        $images = $query->fetchAll();
+
+        foreach ($images as $image) {
+            if ($image['section'] === 'play-video') {
+                return $image['image'];
+            }
+        }
+
+        return $record['image'];
+    }
+
+    private function getProjectCover(array $record, array $context): ?string
+    {
+        $image = $this->getImageSource($record, $context);
+
+        if ($image === null || $image === '') {
+            return null;
+        }
+
+        if (!\str_contains($image, '.')) {
+            return null;
+        }
+
+        return \sprintf('https://s3.eu-west-1.amazonaws.com/goteoassets.org/images/%s', $image);
+    }
+
+    private function getProjectCollaborations(Project $project, array $context): array
+    {
+        $collaborations = [];
+
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT * FROM `support` s WHERE s.project = :project'
+        );
+
+        $query->execute(['project' => $project->getMigratedId()]);
+        $supports = $query->fetchAll();
+
+        foreach ($supports as $support) {
+            $fulfilled = in_array($project->getStatus(), [
+                ProjectStatus::FundingPaid,
+            ]);
+
+            $collaboration = new Collaboration();
+            $collaboration->setTitle($support['support']);
+            $collaboration->setDescription($support['description']);
+            $collaboration->setFulfilled($fulfilled);
+
+            $collaborations[] = $collaboration;
+            $project->addCollaboration($collaboration);
+        }
+
+        return $collaborations;
     }
 }

@@ -6,13 +6,13 @@ use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Gateway\CheckoutApiResource;
+use App\Dto\Gateway\CheckoutCreationDto;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\GatewayLocator;
 use App\Mapping\AutoMapper;
 use App\Money\Conversion\ExchangeLocator;
-use Brick\Money\Context\CustomContext;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class CheckoutStateProcessor implements ProcessorInterface
@@ -26,7 +26,7 @@ class CheckoutStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param CheckoutApiResource|CheckoutUpdationDto $data
+     * @param CheckoutCreationDto|CheckoutUpdationDto $data
      *
      * @return Checkout
      */
@@ -54,12 +54,13 @@ class CheckoutStateProcessor implements ProcessorInterface
             }
 
             $exchange = $this->exchangeLocator->get($fromCurrency, $toCurrency);
-            $exchanged = $exchange->convert($charge->getMoney(), $toCurrency, new CustomContext(0, 1));
 
-            $charge->setMoney(EmbeddableMoney::of($exchanged));
+            $charge->setMoney(EmbeddableMoney::of(
+                $exchange->convert($charge->getMoney(), $toCurrency)
+            ));
         }
 
-        $checkout = $this->gatewayLocator->get($data->gateway->name)->process($checkout);
+        $checkout = $this->gatewayLocator->get($data->gateway->id)->process($checkout);
         $checkout = $this->innerProcessor->process($checkout, $operation, $uriVariables, $context);
 
         return $this->autoMapper->map($checkout, CheckoutApiResource::class);

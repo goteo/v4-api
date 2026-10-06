@@ -4,7 +4,7 @@ security:
         legacy:
             id: 'App\Security\Hasher\LegacyPasswordHasher'
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-            algorithm: 'auto'
+            algorithm: "auto"
             migrate_from:
                 - legacy
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
@@ -13,20 +13,35 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User\User
-                property: handle
+                property: id
+        login_user_provider:
+            id: App\Security\LoginUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            stateless: true
+        api:
             provider: app_user_provider
-
-            access_token:
-                token_handler: App\Security\AccessTokenHandler
-            custom_authenticators:
-                - App\Security\CookieAuthenticator
+            pattern: ^/v4
+            security: true
+            stateless: true
+            # https://github.com/thephpleague/oauth2-server-bundle/blob/master/docs/basic-setup.md#configuring-the-security-layer
+            oauth2: true
+        main:
+            provider: login_user_provider
+            entry_point: App\Security\LoginEntryPoint
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+            custom_authenticator: App\Security\OAuthProvidersCallbackAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -37,11 +52,18 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/oauth/authorize, roles: IS_AUTHENTICATED_REMEMBERED }
+        - { path: ^/security/consent, roles: IS_AUTHENTICATED_REMEMBERED }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
     security:
+        firewalls:
+            api:
+                oauth2: false
+                custom_authenticators:
+                    - App\Security\TestingAuthenticator
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
             # important to generate secure password hashes. In tests however, secure hashes

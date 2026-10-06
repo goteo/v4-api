@@ -3,6 +3,7 @@
 namespace App\State;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Mapping\AutoMapper;
@@ -21,6 +22,10 @@ class ApiResourceStateProcessor implements ProcessorInterface
     {
         $entity = $this->asEntity($data, $operation->getStateOptions());
         $entity = $this->entityStateProcessor->process($entity, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         if ($entity === null) {
             return null;

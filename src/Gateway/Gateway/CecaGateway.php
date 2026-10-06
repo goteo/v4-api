@@ -14,9 +14,14 @@ class CecaGateway implements GatewayInterface
 {
     public const LEGACY_MESSAGE = 'This Gateway implementation is only meant to give support to legacy-records. DO NOT USE. DO NOT IMPLEMENT.';
 
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'tpv';
+    }
+
+    public static function getName(): string
+    {
+        return 'Credit Card';
     }
 
     public static function getSupportedChargeTypes(): array

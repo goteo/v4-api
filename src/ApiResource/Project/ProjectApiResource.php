@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Project;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -103,6 +104,12 @@ class ProjectApiResource
     public string $subtitle;
 
     /**
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
      * On `minimum`, Project will campaign until the minimum deadline.\
      * On `optimum`, Project will campaing until the minimum deadline,
      * and then until the optimum deadline if it did raise the minimum.
@@ -114,14 +121,16 @@ class ProjectApiResource
      * Deadlines and important Project dates.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(filterClass: DateFilter::class, properties: ['calendar.release', 'calendar.minimum', 'calendar.optimum'])]
     public ProjectCalendar $calendar;
 
     /**
-     * A list of the available categories most relevant to this Project.
+     * A list of the available Categories of this Project.
      *
-     * @var array<int, CategoryApiResource>
+     * @var CategoryApiResource[]
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writableLink: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public array $categories;
 
@@ -130,14 +139,33 @@ class ProjectApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
+    #[API\ApiFilter(
+        filterClass: SearchFilter::class,
+        strategy: 'exact',
+        properties: ['territory.country', 'territory.subLvl1', 'territory.subLvl2']
+    )]
     public Territory $territory;
 
     /**
-     * Free-form rich text description for the Project.
+     * Rich-text (markdown) introduction to the project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
-    #[Assert\NotBlank()]
-    public string $description;
+    public string $descBrief;
+
+    /**
+     * Rich-text (markdown) description on the main features of the project.
+     */
+    public string $descAbout;
+
+    /**
+     * Rich-text (markdown) about why this project is important.
+     */
+    public string $descGoal;
+
+    /**
+     * Rich-text (markdown) about team and previous experience.
+     */
+    public string $descTeam;
 
     /**
      * Extracted embedding data from the Project's video.
@@ -175,6 +203,14 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     public array $budgetItems;
+
+    /**
+     * A list of the ProjectCollaborations this Project has.
+     *
+     * @var array<int, CollaborationApiResource>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $collaborations;
 
     /**
      * A list of the ProjectUpdates this Project has.

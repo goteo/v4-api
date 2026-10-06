@@ -2,7 +2,7 @@
 
 namespace App\Mapping\Transformer;
 
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\ApiResource\Project\Budget;
 use App\ApiResource\Project\BudgetSummary;
 use App\Entity\Project\BudgetItem;
@@ -46,22 +46,22 @@ class BudgetMapTransformer implements PropertyTransformerInterface
 
         $summary = new BudgetSummary();
 
-        $summary->money = MoneyWithConversion::of($this->budgetService->calcBudget(
+        $summary->money = MoneyOutput::of($this->budgetService->calcBudget(
             $items,
             $currency
         )[$deadline]);
 
-        $summary->task = MoneyWithConversion::of($this->budgetService->calcBudget(
+        $summary->task = MoneyOutput::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Task),
             $currency
         )[$deadline]);
 
-        $summary->material = MoneyWithConversion::of($this->budgetService->calcBudget(
+        $summary->material = MoneyOutput::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Material),
             $currency
         )[$deadline]);
 
-        $summary->infra = MoneyWithConversion::of($this->budgetService->calcBudget(
+        $summary->infra = MoneyOutput::of($this->budgetService->calcBudget(
             $this->filterItemsByType($items, BudgetItemType::Infrastructure),
             $currency
         )[$deadline]);

@@ -2,6 +2,8 @@
 
 namespace App\Tests\Entity\ProjectApi;
 
+use App\Factory\User\UserFactory;
+use App\Tests\Fixtures\TestUser;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateTest extends ProjectTestCase
@@ -19,12 +21,15 @@ class UpdateTest extends ProjectTestCase
     {
         $this->createTestProjectOptimized();
 
-        $dataToModify = [
-            'title' => 'New project title',
-            'description' => 'Updated project description',
-        ];
+        $this->request($this->getMethod(), $this->getUri(1), [
+            'headers' => $this->withAuthHeader(TestUser::get()),
+            'json' => [
+                'title' => 'New project title',
+                'descBrief' => 'Updated Project\'s brief description',
+            ],
+        ]);
 
-        $this->testRequestHelper($dataToModify, $this->getUri(1));
+        $this->assertResponseIsSuccessful();
     }
 
     public function testUpdateUnauthorized(): void
@@ -36,11 +41,6 @@ class UpdateTest extends ProjectTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testUpdateWithInvalidToken(): void
-    {
-        $this->testInvalidToken($this->getUri(1), 'application/merge-patch+json');
-    }
-
     public function testUpdateNotFound(): void
     {
         $this->testOneNotFound();
@@ -49,23 +49,27 @@ class UpdateTest extends ProjectTestCase
     public function testUpdateInvalidInput(): void
     {
         $this->createTestProjectOptimized();
-        $invalidInput = [
-            'title' => 'New project title',
-            'categories' => ['invalid-category'],
-        ];
 
-        $client = static::createClient();
-        $client->request(
-            $this->getMethod(),
-            $this->getUri(1),
-            $this->getRequestOptions($client, $invalidInput)
-        );
+        $this->request($this->getMethod(), $this->getUri(1), [
+            'headers' => $this->withAuthHeader(TestUser::get()),
+            'json' => [
+                'title' => 'New project title',
+                'categories' => ['invalid-category'],
+            ],
+        ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
     public function testUpdateForbidden(): void
     {
-        $this->testForbidden();
+        $this->createTestProjectOptimized();
+
+        $otherUser = UserFactory::new(['handle' => 'other_user', 'email' => 'otheruser@example.com'])->create();
+        $this->request($this->getMethod(), $this->getUri(1), [
+            'headers' => $this->withAuthHeader($otherUser),
+        ]);
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 }

@@ -37,9 +37,14 @@ class StripeGateway extends AbstractGateway
         $this->stripe = new StripeClient($stripeApiKey);
     }
 
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'stripe';
+    }
+
+    public static function getName(): string
+    {
+        return 'Stripe';
     }
 
     public static function getSupportedChargeTypes(): array
@@ -227,11 +232,16 @@ class StripeGateway extends AbstractGateway
                 throw $e;
             }
 
-            $product = $this->stripe->products->create([
+            $params = [
                 'id' => $id,
                 'name' => $charge->getTitle(),
-                'description' => $charge->getDescription(),
-            ]);
+            ];
+
+            if ($charge->getDescription() !== null) {
+                $params['description'] = $charge->getDescription();
+            }
+
+            $product = $this->stripe->products->create($params);
         }
 
         return $product;

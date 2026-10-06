@@ -41,8 +41,11 @@ final class ProjectFactory extends PersistentProxyObjectFactory
     {
         return [
             'deadline' => ProjectDeadline::Minimum,
-            'description' => '',
             'territory' => new Territory('ES'),
+            'descBrief' => 'Brief information on this Project',
+            'descAbout' => 'About this Project',
+            'descGoal' => 'Project\'s goal',
+            'descTeam' => 'Project\'s team',
             'owner' => new User(),
             'status' => ProjectStatus::InDraft,
             'subtitle' => 'Subtitle',
@@ -54,7 +57,10 @@ final class ProjectFactory extends PersistentProxyObjectFactory
     {
         return [
             'deadline' => self::faker()->randomElement(ProjectDeadline::cases()),
-            'description' => self::faker()->text(),
+            'descBrief' => self::faker()->text(),
+            'descAbout' => self::faker()->text(),
+            'descGoal' => self::faker()->text(),
+            'descTeam' => self::faker()->text(),
             'territory' => new Territory('ES'),
             'owner' => UserFactory::createWithMode(),
             'status' => self::faker()->randomElement(ProjectStatus::cases()),

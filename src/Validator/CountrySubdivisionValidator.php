@@ -10,7 +10,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 final class CountrySubdivisionValidator extends ConstraintValidator
 {
     /**
-     * @param CountrySubdivion $constraint
+     * @param CountrySubdivision $constraint
      */
     public function validate(mixed $value, Constraint $constraint): void
     {
@@ -31,7 +31,7 @@ final class CountrySubdivisionValidator extends ConstraintValidator
     /**
      * Check if a a string is an actual ISO 3166-2 value.
      *
-     * @return `true` if the string is a recognized territory
+     * @return bool `true` if the string is a recognized territory
      */
     public static function validateISO3166_2(string $iso3166_2): bool
     {

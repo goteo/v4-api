@@ -1,0 +1,7 @@
+# config/packages/doctrine_encryption.yaml
+doctrine_encryption:
+  encrypt_key: "%env(DOCTRINE_ENCRYPTION_ENCRYPT_KEY)%"
+  blind_index_key: "%env(DOCTRINE_ENCRYPTION_BLIND_INDEX_KEY)%"
+  # Necessary for key rotation
+  # https://github.com/Kyzegs/doctrine-encryption-bundle#key-rotation
+  key_id: "2026"

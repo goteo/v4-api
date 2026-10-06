@@ -44,9 +44,14 @@ class PaypalGateway extends AbstractGateway
         private PaypalService $paypal,
     ) {}
 
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'paypal';
+    }
+
+    public static function getName(): string
+    {
+        return 'PayPal';
     }
 
     public static function getSupportedChargeTypes(): array

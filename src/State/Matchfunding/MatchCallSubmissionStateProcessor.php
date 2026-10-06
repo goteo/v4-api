@@ -2,6 +2,7 @@
 
 namespace App\State\Matchfunding;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
@@ -27,6 +28,10 @@ class MatchCallSubmissionStateProcessor implements ProcessorInterface
         /** @var MatchCallSubmission */
         $submission = $this->autoMapper->map($data, MatchCallSubmission::class);
         $submission = $this->entityProcessor->process($submission, $operation, $uriVariables, $context);
+
+        if ($operation instanceof DeleteOperationInterface) {
+            return;
+        }
 
         return $this->autoMapper->map($submission, MatchCallSubmissionApiResource::class);
     }

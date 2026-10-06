@@ -8,12 +8,15 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Accounting\TransactionApiResource;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 use App\Entity\Project\Support;
+use App\Mapping\Transformer\SupportDisplayImageMapTransformer;
+use App\Mapping\Transformer\SupportDisplayNameMapTransformer;
 use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
 use App\State\MoneyTotalStateProvider;
 use App\State\Project\SupportStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -70,11 +73,19 @@ class SupportApiResource
     /**
      * The Accounting of origin for the Transactions under this ProjectSupport record.\
      * \
-     * When `anonymous` is *true* it will only be public to admins and the User.
+     * When `anonymous` is *true* the origin will only be public to admins and the User.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("SUPPORT_VIEW", object)')]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ?AccountingApiResource $origin;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(Support::class, transformer: SupportDisplayNameMapTransformer::class)]
+    public ?string $displayName;
+
+    #[API\ApiProperty(writable: false)]
+    #[MapFrom(Support::class, transformer: SupportDisplayImageMapTransformer::class)]
+    public ?string $displayImage;
 
     /**
      * The Transactions that were issued to the Project by the origin.
@@ -87,15 +98,23 @@ class SupportApiResource
     /**
      * The total monetary value of the Transactions going to the Project.
      */
-    public MoneyWithConversion $money;
+    #[API\ApiProperty(writable: false)]
+    public MoneyOutput $money;
 
     /**
-     * User's will to have their support to the Project be shown publicly.
+     * If the origin wishes to remain anonymous behind this ProjectSupport.
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
     #[API\ApiFilter(BooleanFilter::class)]
     public bool $anonymous = true;
+
+    /**
+     * If this ProjectSupport comes from a MatchCall this flag will be true.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(BooleanFilter::class)]
+    public bool $matchfunding;
 
     /**
      * A message of support from the User to the Project.

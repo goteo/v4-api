@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'consent.title' | trans }}
+{% endblock %}
+
+{% block body %}
+	<div class="mx-auto max-w-360 px-10 mb-20">
+		<form method="post" class="mx-auto max-w-122 flex flex-col gap-6">
+			<h2 class="text-lg font-bold text-black mb-4 md:text-xl lg:text-2xl">
+				{{ 'consent.description' | trans({ '%app%': '<span class="text-secondary">' ~ oauth_client ~ '</span>' }) | raw }}
+			</h2>
+			<p>
+				{{ 'consent.tip' | trans }}
+			</p>
+
+			<div class="checkbox mb-3 flex flex-row gap-2">
+				<input type="checkbox" name="_consent" id="_consent" class="w-6 h-6 border-secondary rounded-sm accent-primary text-secondary focus:ring-secondary border" checked>
+				<label for="_consent">{{ 'consent.consent' | trans }}</label>
+			</div>
+
+			<div class="flex flex-col items-end">
+				<button class="btn btn-lg btn-primary text-secondary disabled:bg-grey flex items-center justify-center gap-2 font-bold transition hover:cursor-pointer px-8 py-4 rounded-3xl bg-primary w-fit" type="submit">
+					{{ 'consent.submit' | trans }}
+				</button>
+			</div>
+		</form>
+	</div>
+{% endblock %}

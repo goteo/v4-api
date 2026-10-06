@@ -3,6 +3,7 @@
 namespace App\Service\Matchfunding;
 
 use App\Entity\Accounting\Transaction;
+use App\Entity\EmbeddableMoney;
 use App\Entity\Gateway\Charge;
 use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
@@ -61,7 +62,7 @@ class MatchfundingService
                     ->match($strategy->getFactor(), $toBeMatched, $strategy->getLimit());
 
                 $transaction = new Transaction();
-                $transaction->setMoney($matched);
+                $transaction->setMoney(EmbeddableMoney::of($matched));
                 $transaction->setOrigin($submission->getCall()->getAccounting());
                 $transaction->setTarget($submission->getProject()->getAccounting());
 

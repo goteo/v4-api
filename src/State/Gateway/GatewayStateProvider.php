@@ -24,7 +24,7 @@ class GatewayStateProvider implements ProviderInterface
             case API\GetCollection::class:
                 return $this->getGateways();
             case API\Get::class:
-                return $this->getGateway($uriVariables['name']);
+                return $this->getGateway($uriVariables['id']);
             default:
                 return $this->getGateways();
         }
@@ -48,10 +48,10 @@ class GatewayStateProvider implements ProviderInterface
         return $gateways;
     }
 
-    private function getGateway(string $name): GatewayApiResource
+    private function getGateway(string $id): GatewayApiResource
     {
         try {
-            $gateway = $this->gateways->get($name);
+            $gateway = $this->gateways->get($id);
 
             foreach ($gateway::getAllowedRoles() as $role) {
                 $isGranted = $this->security->isGranted($role, $this->security->getUser());
@@ -70,6 +70,7 @@ class GatewayStateProvider implements ProviderInterface
     private function toResource(GatewayInterface $gateway): GatewayApiResource
     {
         $resource = new GatewayApiResource();
+        $resource->id = $gateway::getId();
         $resource->name = $gateway::getName();
         $resource->supports = $gateway::getSupportedChargeTypes();
 

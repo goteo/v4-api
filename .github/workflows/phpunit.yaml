@@ -12,6 +12,8 @@ jobs:
 
     env:
       STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+      DOCTRINE_ENCRYPTION_ENCRYPT_KEY: "0Y3McEg51558fcreunKodhuP+Ua/Yf+tp43GxmBVY4Q="
+      DOCTRINE_ENCRYPTION_BLIND_INDEX_KEY: "cRt6Hf/3nEVG8XTBnZrOFCnOHJQ7PIE910EYIT+79EQ="
 
     services:
       mariadb:
@@ -32,11 +34,13 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: ${{ env.PHP_EXTENSIONS }}
 
+      - name: PHP diagnostics
+        run: |
+          php -v
+          php --ini
+          php -r 'echo "PHP_VERSION=", PHP_VERSION, PHP_EOL;'
+
       - name: PHPUnit
-        uses: php-actions/phpunit@v4
+        run: php -d memory_limit=128M bin/phpunit -c phpunit.xml.dist
         env:
           DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          php_extensions: ${{ env.PHP_EXTENSIONS }}
-          configuration:  phpunit.xml.dist

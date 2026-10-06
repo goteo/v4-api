@@ -4,30 +4,28 @@ namespace App\Entity\Project;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Embeddable()]
 class ProjectCalendar
 {
     /**
-     * The date at which the Project started campaigning.
+     * Public campaign start date.
      */
+    #[Assert\NotBlank()]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     public ?\DateTimeImmutable $release = null;
 
     /**
-     * 40 days after the date of release.\
-     * \
-     * The minimum budget must be raised by the end of this date.\
-     * Failure to do so will move the Project out of status `in_campaign` into status `unfunded`.
+     * The minimum budget must be raised by the end of this date,
+     * failure to do so will move the Project out of status `in_campaign` into status `unfunded`.
      */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     public ?\DateTimeImmutable $minimum = null;
 
     /**
-     * 40 days after the minimum deadline. Optional.\
-     * \
      * If the Project achieved their minimum budget by the minimum deadline,
-     * and this deadline is defined, it may still remain in campaign to raise the optimum.
+     * and this deadline is defined, it may still remain `in_campaign` to raise the optimum.
      */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     public ?\DateTimeImmutable $optimum = null;

@@ -27,6 +27,11 @@ interface GatewayInterface
     /**
      * @return string A short, unique, descriptive string for this Gateway
      */
+    public static function getId(): string;
+
+    /**
+     * @return string the commercially-preferred displayable name of the Gateway platform
+     */
     public static function getName(): string;
 
     /**

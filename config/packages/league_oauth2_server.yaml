@@ -1,0 +1,20 @@
+league_oauth2_server:
+    client:
+        classname: App\Entity\OAuth2Client
+    authorization_server:
+        access_token_ttl: '%env(OAUTH_ACCESS_TOKEN_TTL)%'
+        private_key: '%env(resolve:OAUTH_PRIVATE_KEY)%'
+        private_key_passphrase: '%env(resolve:OAUTH_PASSPHRASE)%'
+        encryption_key: '%env(resolve:OAUTH_ENCRYPTION_KEY)%'
+    resource_server:
+        public_key: '%env(resolve:OAUTH_PUBLIC_KEY)%'
+    scopes:
+        available: ['email']
+        default: ['email']
+    persistence:
+        doctrine: null
+
+when@test:
+    league_oauth2_server:
+        persistence:
+            in_memory: null

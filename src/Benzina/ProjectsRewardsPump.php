@@ -8,14 +8,13 @@ use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
 use App\Repository\Project\ProjectRepository;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
-use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
 class ProjectsRewardsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DatabasePumpTrait;
-    use DoctrinePumpTrait;
+    use DoctrineLoggablePumpTrait;
     use LocalizedPumpTrait;
 
     private const REWARD_KEYS = [

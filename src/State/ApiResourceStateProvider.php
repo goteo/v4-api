@@ -27,11 +27,7 @@ class ApiResourceStateProvider implements ProviderInterface
 
         if ($operation instanceof CollectionOperationInterface) {
             $collection = $this->collectionProvider->provide($operation, $uriVariables, $context);
-
-            $resources = [];
-            foreach ($collection as $item) {
-                $resources[] = $this->autoMapper->map($item, $resourceClass);
-            }
+            $resources = $this->autoMapper->mapCollection($collection, $resourceClass);
 
             return new TraversablePaginator(
                 new \ArrayIterator($resources),

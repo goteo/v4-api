@@ -9,7 +9,7 @@ use App\Gateway\Exception\MissingGatewayException;
 class GatewayLocator
 {
     /** @var GatewayInterface[] */
-    private array $gatewaysByName = [];
+    private array $gatewaysById = [];
 
     /** @var GatewayInterface[] */
     private array $gatewaysByClass = [];
@@ -20,10 +20,10 @@ class GatewayLocator
             $this->gatewaysByClass[$gateway::class] = $gateway;
         }
 
-        self::validateGatewayNames($this->gatewaysByClass);
+        self::validateGatewayIDs($this->gatewaysByClass);
 
         foreach ($this->gatewaysByClass as $class => $gateway) {
-            $this->gatewaysByName[$gateway::getName()] = $gateway;
+            $this->gatewaysById[$gateway::getId()] = $gateway;
         }
     }
 
@@ -32,21 +32,21 @@ class GatewayLocator
      */
     public function getAll(): array
     {
-        return $this->gatewaysByName;
+        return $this->gatewaysById;
     }
 
     /**
-     * @param string $name Name of the Gateway interface implementation
+     * @param string $id ID of the Gateway interface implementation
      *
-     * @throws \Exception When the `$name` does not match to that of an implemented Gateway
+     * @throws \Exception When the `$id` does not match to that of an implemented Gateway
      */
-    public function get(string $name): GatewayInterface
+    public function get(string $id): GatewayInterface
     {
-        if (!\array_key_exists($name, $this->gatewaysByName)) {
-            throw new MissingGatewayException($name);
+        if (!\array_key_exists($id, $this->gatewaysById)) {
+            throw new MissingGatewayException($id);
         }
 
-        return $this->gatewaysByName[$name];
+        return $this->gatewaysById[$id];
     }
 
     /**
@@ -54,31 +54,31 @@ class GatewayLocator
      */
     public function getForCheckout(Checkout $checkout): GatewayInterface
     {
-        return $this->get($checkout->getGatewayName());
+        return $this->get($checkout->getGatewayId());
     }
 
     /**
-     * Ensures the gateway names are unique for each gateway.
+     * Ensures the gateway IDs are unique for each gateway.
      *
      * @param array $gatewayClasses Fully-qualified Gateway class names
      *
      * @throws \Exception If there are two different Gateway classes that return the same name string
      */
-    private static function validateGatewayNames(array $gatewayClasses): void
+    private static function validateGatewayIDs(array $gatewayClasses): void
     {
         $gatewaysValidated = [];
         foreach ($gatewayClasses as $gatewayClass) {
-            $gatewayName = $gatewayClass::getName();
+            $gatewayId = $gatewayClass::getId();
 
-            if (\array_key_exists($gatewayName, $gatewaysValidated)) {
+            if (\array_key_exists($gatewayId, $gatewaysValidated)) {
                 throw new DuplicateGatewayException(
-                    $gatewayName,
+                    $gatewayId,
                     $gatewayClass::class,
-                    $gatewaysValidated[$gatewayName]::class
+                    $gatewaysValidated[$gatewayId]::class
                 );
             }
 
-            $gatewaysValidated[$gatewayName] = $gatewayClass;
+            $gatewaysValidated[$gatewayId] = $gatewayClass;
         }
     }
 }

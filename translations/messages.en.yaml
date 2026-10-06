@@ -1,0 +1,29 @@
+greeting: Hello, %name%.
+
+login:
+  title: Login
+  loggedinas: You are logged in as %name%
+  logout: Logout
+  username:
+    label: Email or username
+    placeholder: johndoe@example.com
+  password:
+    label: Password
+    placeholder: TrustNo1
+  rememberme: Remember me
+  submit: Sign in
+  oauth: 'You can also login via:'
+
+consent:
+  title: Authorize
+  description: The application %app% would like permission to access your Goteo account.
+  tip: You should only give access to your Goteo account to third parties you trust.
+  consent: Yes, allow access
+  submit: Continue
+
+footer:
+  legal:
+    termsOfUse: Terms of use
+    licenses: Licencias
+  platoniq:
+    foundation: Foundation

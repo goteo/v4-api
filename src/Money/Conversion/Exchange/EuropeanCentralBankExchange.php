@@ -5,7 +5,6 @@ namespace App\Money\Conversion\Exchange;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -32,12 +31,22 @@ class EuropeanCentralBankExchange extends AbstractExchange
 
     public const ECB_TIMEZONE = 'Europe/Berlin';
 
-    private CacheInterface $cache;
+    public function __construct(
+        private CacheInterface $cache,
+    ) {}
 
-    public function __construct()
+    public function getName(): string
     {
-        $this->cache = new FilesystemAdapter();
+        return self::NAME;
+    }
 
+    public function getWeight(): int
+    {
+        return self::WEIGHT;
+    }
+
+    protected function load(): void
+    {
         $data = $this->getData();
 
         $provider = new ConfigurableProvider();
@@ -49,16 +58,6 @@ class EuropeanCentralBankExchange extends AbstractExchange
         $this->date = $data['@attributes']['time'];
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
-    public function getWeight(): int
-    {
-        return self::WEIGHT;
     }
 
     public function getData(): array
@@ -111,11 +110,14 @@ class EuropeanCentralBankExchange extends AbstractExchange
 
     private function getDataCached(): array
     {
-        $data = $this->cache->get(self::NAME, function (ItemInterface $item): array {
-            $item->expiresAfter(self::ECB_DATA_TTL);
+        $data = $this->cache->get(
+            self::NAME,
+            function (ItemInterface $item): array {
+                $item->expiresAfter(self::ECB_DATA_TTL);
 
-            return $this->getDataLatest();
-        });
+                return $this->getDataLatest();
+            }
+        );
 
         if (!$data || empty($data['@attributes']['time'])) {
             throw new \Exception('Could not retrieve cached data');

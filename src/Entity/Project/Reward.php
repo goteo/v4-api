@@ -47,6 +47,9 @@ class Reward implements LocalizedInterface
     #[Gedmo\Translatable()]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $cover = null;
+
     /**
      * The minimal monetary sum to be able to claim this reward.
      */
@@ -125,6 +128,18 @@ class Reward implements LocalizedInterface
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCover(): ?string
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?string $cover): static
+    {
+        $this->cover = $cover;
 
         return $this;
     }

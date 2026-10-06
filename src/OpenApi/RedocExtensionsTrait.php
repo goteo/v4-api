@@ -23,7 +23,6 @@ trait RedocExtensionsTrait
                 'name' => 'Users',
                 'tags' => [
                     'User',
-                    'UserToken',
                     'Person',
                     'Organization',
                 ],
@@ -41,6 +40,7 @@ trait RedocExtensionsTrait
                     'ProjectUpdate',
                     'ProjectSupport',
                     'ProjectCollaboration',
+                    'ProjectCollaborationCandidacy',
                     'Category',
                 ],
             ],

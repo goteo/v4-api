@@ -21,9 +21,16 @@ use App\State\Gateway\GatewayStateProvider;
 class GatewayApiResource
 {
     #[API\ApiProperty(identifier: true)]
+    public string $id;
+
+    /**
+     * The publicly known name of this payment method.
+     */
     public string $name;
 
     /**
+     * The types of GatewayCheckout this Gateway can process.
+     *
      * @var array<int, \App\Gateway\ChargeType>
      */
     public array $supports;

@@ -11,9 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CashGateway implements GatewayInterface
 {
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'cash';
+    }
+
+    public static function getName(): string
+    {
+        return 'Cash';
     }
 
     public static function getSupportedChargeTypes(): array

@@ -26,9 +26,12 @@ class ChargeRefundListener
 
     public function preUpdate(Charge $charge, PreUpdateEventArgs $args): void
     {
+        if (!$args->hasChangedField(self::FIELD_STATUS)) {
+            return;
+        }
+
         if (
-            !$args->hasChangedField(self::FIELD_STATUS)
-            && $args->getOldValue(self::FIELD_STATUS) === ChargeStatus::InCharge->value
+            $args->getOldValue(self::FIELD_STATUS) === ChargeStatus::InCharge->value
         ) {
             return;
         }

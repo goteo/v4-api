@@ -5,6 +5,7 @@ namespace App\Service\Scout;
 use Embed\Embed;
 use Embed\Http\Crawler;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validation;
@@ -39,8 +40,8 @@ class ScoutService
     /**
      * @param string $url A URL to an external resource
      *
-     * @throws InvalidUriException When the given $url string could not be validated as an actual URL
-     * @throws FileUriException    If the given $url string points to a file
+     * @throws InvalidUriException      When the given $url string could not be validated as an actual URL
+     * @throws NonCrawlableUriException If the given $url string points to a file
      */
     public function get(string $url): ScoutResult
     {
@@ -54,9 +55,12 @@ class ScoutService
         }
 
         $uri = $this->embed->getCrawler()->createUri($url);
+        $response = $this->httpClient->sendRequest(
+            new \GuzzleHttp\Psr7\Request('HEAD', $url)
+        );
 
-        if (\pathinfo($uri->getPath(), \PATHINFO_EXTENSION)) {
-            throw new FileUriException($uri);
+        if (!$this->isCrawlable($response)) {
+            throw new NonCrawlableUriException($uri);
         }
 
         $info = $this->embed->get($url);
@@ -81,5 +85,21 @@ class ScoutService
         }
 
         return $result;
+    }
+
+    private function isCrawlable(ResponseInterface $response): bool
+    {
+        $contentType = $response->getHeaderLine('Content-Type');
+
+        if ($contentType === '') {
+            return true;
+        }
+
+        $contentType = \strtolower(\trim(\explode(';', $contentType)[0]));
+
+        return \in_array($contentType, [
+            'text/html',
+            'application/xhtml+xml',
+        ], true);
     }
 }

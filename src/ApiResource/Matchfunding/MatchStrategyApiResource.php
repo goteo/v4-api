@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyInput;
 use App\Entity\Matchfunding\MatchAgainst;
 use App\Entity\Matchfunding\MatchStrategy;
 use App\Mapping\Transformer\MatchFormulaMapTransformer;
@@ -81,7 +81,7 @@ class MatchStrategyApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public MoneyWithConversion $limit;
+    public MoneyInput $limit;
 
     /**
      * The `x` factor used to calculate the resulting match of funds with the MatchFormula.

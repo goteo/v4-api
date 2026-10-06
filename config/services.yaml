@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(OAUTH_ACCESS_TOKEN_TTL): PT1H
 
 services:
     # default configuration for services in *this* file
@@ -63,6 +64,10 @@ services:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    App\Identifier\IdOrHandleUriVariableTransformer:
+        tags:
+            - { name: api_platform.uri_variables.transformer }
+
     App\Identifier\IdOrSlugUriVariableTransformer:
         tags:
             - { name: api_platform.uri_variables.transformer }
@@ -75,9 +80,9 @@ services:
         arguments:
             - !tagged 'app.matchfunding.rule'
 
-    App\Service\Auth\AuthService:
+    App\Security\TestingAuthenticator:
         arguments:
-            - '%env(APP_SECRET)%'
+            - '%env(APP_ENV)%'
 
     App\Service\LocalizationService:
         arguments:
@@ -87,7 +92,7 @@ services:
         arguments:
             - !tagged 'app.service.scout.processor'
 
-    App\State\MoneyTotalStateProvider:
+    App\State\QueryBuilderExtractor:
         arguments:
             - !tagged 'api_platform.doctrine.orm.query_extension.collection'
 

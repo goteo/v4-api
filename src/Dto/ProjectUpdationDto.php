@@ -5,6 +5,7 @@ namespace App\Dto;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
@@ -14,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectUpdationDto
 {
+    use CategoryInputDtoTrait;
+
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
@@ -21,6 +24,7 @@ class ProjectUpdationDto
      * Main headline for the Project.
      */
     #[Assert\Regex('/[a-zA-Z]{1,}/')]
+    #[Assert\Length(min: 3)]
     public string $title;
 
     /**
@@ -29,11 +33,18 @@ class ProjectUpdationDto
     public string $subtitle;
 
     /**
-     * One of the available categories.
+     * URL to an image resource to be displayed as header.
+     */
+    #[Assert\Url()]
+    public string $cover;
+
+    /**
+     * List of Categories.
      *
-     * @var array<int, CategoryApiResource>
+     * @var CategoryApiResource[]
      */
     #[Assert\Count(min: 1, max: 2)]
+    #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
     public array $categories;
 
     /**
@@ -43,9 +54,28 @@ class ProjectUpdationDto
     public Territory $territory;
 
     /**
-     * Free-form rich text description for the Project.
+     * Rich-text (markdown allowed) introduction to the project.
      */
-    public string $description;
+    #[Assert\Length(min: 20)]
+    public string $descBrief;
+
+    /**
+     * Rich-text (markdown allowed) description on the main features of the project.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descAbout;
+
+    /**
+     * Rich-text (markdown allowed) about why this project is important.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descGoal;
+
+    /**
+     * Rich-text (markdown allowed) about team and previous experience.
+     */
+    #[Assert\Length(min: 20)]
+    public string $descTeam;
 
     /**
      * On `minimum`, Project will campaign until the minimum deadline.\
@@ -53,6 +83,12 @@ class ProjectUpdationDto
      * and then until the optimum deadline if it did raise the minimum.
      */
     public ProjectDeadline $deadline;
+
+    /**
+     * Deadlines and important Project dates.
+     */
+    #[Assert\Valid()]
+    public ProjectCalendar $calendar;
 
     /**
      * A URL to a video showcasing the Project.

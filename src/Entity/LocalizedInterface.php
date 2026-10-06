@@ -13,7 +13,7 @@ use Gedmo\Translatable\Translatable;
  */
 interface LocalizedInterface extends Translatable
 {
-    public function getId(): ?int;
+    public function getId(): int|string|null;
 
     /**
      * Set the locale of the working content for translations.

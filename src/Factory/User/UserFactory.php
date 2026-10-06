@@ -64,4 +64,13 @@ final class UserFactory extends PersistentProxyObjectFactory
         $defaults = $optimized ? self::defaultsOptimized() : self::defaultsFull();
         self::createMany($count, array_merge($defaults, $overrides));
     }
+
+    public function test(): self
+    {
+        return $this->with([
+            'handle' => 'test_user',
+            'email' => 'testuser@example.com',
+            'password' => 'T3stUs3rP455w0rd',
+        ]);
+    }
 }

@@ -18,9 +18,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WalletGateway implements GatewayInterface
 {
-    public static function getName(): string
+    public static function getId(): string
     {
         return 'wallet';
+    }
+
+    public static function getName(): string
+    {
+        return 'Wallet';
     }
 
     public static function getSupportedChargeTypes(): array

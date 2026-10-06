@@ -5,21 +5,38 @@ namespace App\EventListener;
 use App\Entity\Accounting\Transaction;
 use App\Entity\EmbeddableMoney;
 use App\Money\MoneyService;
-use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
-#[AsEntityListener(
-    entity: Transaction::class,
-    event: Events::postPersist
-)]
+#[AsDoctrineListener(event: Events::onFlush)]
 class AccountingBalanceListener
 {
     public function __construct(
         private MoneyService $moneyService,
     ) {}
 
-    public function postPersist(Transaction $transaction, PostPersistEventArgs $event): void
+    public function onFlush(OnFlushEventArgs $event): void
+    {
+        $em = $event->getObjectManager();
+
+        if (!$em instanceof EntityManagerInterface) {
+            return;
+        }
+
+        $uow = $em->getUnitOfWork();
+
+        foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            if (!$entity instanceof Transaction) {
+                continue;
+            }
+
+            $this->updateBalances($em, $entity);
+        }
+    }
+
+    private function updateBalances(EntityManagerInterface $em, Transaction $transaction): void
     {
         $money = $transaction->getMoney();
 
@@ -33,8 +50,12 @@ class AccountingBalanceListener
             $this->moneyService->add($money, $target->getBalance())
         ));
 
-        $event->getObjectManager()->persist($origin);
-        $event->getObjectManager()->persist($target);
-        $event->getObjectManager()->flush();
+        $uow = $em->getUnitOfWork();
+
+        $originMetadata = $em->getClassMetadata($origin::class);
+        $targetMetadata = $em->getClassMetadata($target::class);
+
+        $uow->computeChangeSet($originMetadata, $origin);
+        $uow->computeChangeSet($targetMetadata, $target);
     }
 }

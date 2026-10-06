@@ -19,12 +19,20 @@ abstract class AbstractExchange implements ExchangeInterface
     protected CurrencyConverter $converter;
     protected ExchangeRateProvider $provider;
 
+    /**
+     * Here is where your implementation should pull the data from its sources.
+     * The methods `convert`, `getConversionRate`, and `getConversionDate` will call this method before making any operation.
+     */
+    abstract protected function load(): void;
+
     public function convert(
         MoneyInterface $from,
         string $toCurrency,
         ?Context $context = null,
         RoundingMode $roundingMode = RoundingMode::UP,
     ): MoneyInterface {
+        $this->load();
+
         $converted = $this->converter->convert(
             MoneyService::toBrick($from),
             $toCurrency,
@@ -48,11 +56,15 @@ abstract class AbstractExchange implements ExchangeInterface
 
     public function getConversionRate(string $fromCurrency, string $toCurrency): float
     {
+        $this->load();
+
         return $this->provider->getExchangeRate($fromCurrency, $toCurrency)->toFloat();
     }
 
     public function getConversionDate(string $fromCurrency, string $toCurrency): string
     {
+        $this->load();
+
         return $this->date;
     }
 }

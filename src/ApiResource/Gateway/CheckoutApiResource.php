@@ -2,18 +2,22 @@
 
 namespace App\ApiResource\Gateway;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\Gateway\CheckoutCreationDto;
 use App\Dto\Gateway\CheckoutUpdationDto;
 use App\Entity\Gateway\Checkout;
+use App\Filter\GatewayFilter;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\GatewayLink;
 use App\Gateway\RefundStrategy;
 use App\Gateway\Tracking;
-use App\Mapping\Transformer\GatewayNameMapTransformer;
+use App\Mapping\Transformer\GatewayIdMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
+use App\Validator\ChargeToProjectInCampaign;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -27,10 +31,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
-#[API\GetCollection(
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")'
+#[API\GetCollection()]
+#[API\Post(
+    input: CheckoutCreationDto::class,
+    security: 'is_granted("ROLE_USER")'
 )]
-#[API\Post()]
 #[API\Get()]
 #[API\Patch(
     input: CheckoutUpdationDto::class,
@@ -45,13 +50,16 @@ class CheckoutApiResource
      * The desired Gateway to checkout with.
      */
     #[Assert\NotBlank()]
-    #[MapFrom(property: 'gatewayName', transformer: GatewayNameMapTransformer::class)]
-    #[MapTo(property: 'gatewayName', transformer: 'source.gateway.name')]
+    #[MapFrom(property: 'gatewayId', transformer: GatewayIdMapTransformer::class)]
+    #[MapTo(property: 'gatewayId', transformer: 'source.gateway.id')]
+    #[API\ApiFilter(GatewayFilter::class)]
     public GatewayApiResource $gateway;
 
     /**
      * The Accounting paying for the charges.
      */
+    #[API\ApiProperty(security: 'is_granted("ACCOUNTING_VIEW", object.origin)')]
+    #[API\ApiFilter(SearchFilter::class)]
     #[Assert\NotBlank()]
     public AccountingApiResource $origin;
 
@@ -63,6 +71,7 @@ class CheckoutApiResource
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
+    #[Assert\All([new ChargeToProjectInCampaign()])]
     public array $charges = [];
 
     /**
@@ -88,6 +97,7 @@ class CheckoutApiResource
      * The status of this Checkout, as confirmed by the Gateway.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class)]
     public CheckoutStatus $status = CheckoutStatus::ToCharge;
 
     /**
@@ -106,6 +116,7 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class, properties: ['trackings.value'])]
     public array $trackings = [];
 
     #[API\ApiProperty(writable: false)]

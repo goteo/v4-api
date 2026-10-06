@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'login.title' | trans }}
+{% endblock %}
+
+{% block body %}
+	<div class="mx-auto max-w-360 px-10 mb-20">
+		<form method="post" class="mx-auto max-w-122 flex flex-col gap-6">
+			{% if error %}
+				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+			{% endif %}
+
+			<h1 class="text-2xl font-bold tracking-[0%] text-black mb-8 md:text-3xl md:leading-tight lg:text-[40px] lg:leading-12">{{ 'login.title' | trans }}</h1>
+
+			<div class="relative">
+				<label for="username" class="absolute -top-2 left-4 -translate-y-1/2 transform text-sm font-medium text-gray-500 transition-all">
+					{{ 'login.username.label' | trans }}
+				</label>
+				<input type="text" value="{{ last_username }}" placeholder="{{ 'login.username.placeholder' | trans }}" name="_username" id="username" class="form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none" autocomplete="username" required autofocus>
+			</div>
+			<div class="relative">
+				<label for="password" class="absolute -top-2 left-4 -translate-y-1/2 transform text-sm font-medium text-gray-500 transition-all">
+					{{ 'login.password.label' | trans }}
+				</label>
+				<input type="password" placeholder="{{ 'login.password.placeholder' | trans }}" name="_password" id="password" class="form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none" autocomplete="current-password" required>
+			</div>
+
+			<input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+			<div class="checkbox mb-3 flex flex-row gap-2">
+				<input type="checkbox" name="_remember_me" id="_remember_me" class="w-6 h-6 border-secondary rounded-sm accent-primary text-secondary focus:ring-secondary border">
+				<label for="_remember_me">{{ 'login.rememberme' | trans }}</label>
+			</div>
+
+			<div class="flex flex-col items-end">
+				<button class="btn btn-lg btn-primary text-secondary disabled:bg-grey flex items-center justify-center gap-2 font-bold transition hover:cursor-pointer px-8 py-4 rounded-3xl bg-primary w-fit" type="submit">
+					{{ 'login.submit' | trans }}
+				</button>
+			</div>
+		</form>
+
+		<ul class="mx-auto max-w-122 flex flex-col gap-4">
+			<p class="text-content">{{ 'login.oauth' | trans }}</p>
+			<div class="flex gap-6">
+				{% for provider in oauth_providers %}
+					<li>
+						<div class="bg-white border border-grey rounded-2xl p-4 shadow-sm">
+							<a href="{{ path('oauth_providers_start', { provider: provider }) }}">
+								<img class="max-h-12 h-full" src="/oauth2/providers/{{ provider }}.png" alt={{ provider }}>
+							</a>
+						</div>
+					</li>
+				{% endfor %}
+			</div>
+		</ul>
+	</div>
+{% endblock %}

@@ -2,27 +2,27 @@
 
 namespace App\ApiResource\Project;
 
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyOutput;
 
 class BudgetSummary
 {
     /**
      * The total money by the included items.
      */
-    public MoneyWithConversion $money;
+    public MoneyOutput $money;
 
     /**
      * The total money of type 'task'.
      */
-    public MoneyWithConversion $task;
+    public MoneyOutput $task;
 
     /**
      * The total money of type 'material'.
      */
-    public MoneyWithConversion $material;
+    public MoneyOutput $material;
 
     /**
      * The total money of type 'infrastructure'.
      */
-    public MoneyWithConversion $infra;
+    public MoneyOutput $infra;
 }

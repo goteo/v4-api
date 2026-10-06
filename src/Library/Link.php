@@ -16,15 +16,30 @@ class Link
      */
     public ?string $rel;
 
-    public static function tryFrom($value): self
+    /**
+     * The known organization behind this link.
+     */
+    public function getOrg(): LinkOrg
+    {
+        return LinkOrg::fromUrl($this->url);
+    }
+
+    public static function tryFrom(mixed $value): self
     {
         if ($value instanceof self) {
             return $value;
         }
 
+        if (\is_array($value)) {
+            $link = new self();
+            $link->url = $value['url'];
+            $link->rel = $value['rel'];
+
+            return $link;
+        }
+
         $link = new self();
-        $link->url = $value['url'];
-        $link->rel = $value['rel'];
+        $link->url = $value;
 
         return $link;
     }

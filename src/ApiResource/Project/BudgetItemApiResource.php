@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\LocalizedApiResourceTrait;
-use App\ApiResource\MoneyWithConversion;
+use App\ApiResource\MoneyInput;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectDeadline;
@@ -34,6 +34,7 @@ class BudgetItemApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    #[Assert\NotBlank()]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectApiResource $project;
 
@@ -41,6 +42,7 @@ class BudgetItemApiResource
      * The type of need this item solves.
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public BudgetItemType $type;
 
     /**
@@ -60,7 +62,7 @@ class BudgetItemApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Valid()]
-    public MoneyWithConversion $money;
+    public MoneyInput $money;
 
     /**
      * Defines the budget category for this item within the project.
@@ -68,5 +70,6 @@ class BudgetItemApiResource
      * This field specifies whether the budget item belongs to the minimum or optimum budget:
      */
     #[Assert\NotBlank()]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public ProjectDeadline $deadline;
 }

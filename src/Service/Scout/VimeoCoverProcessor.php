@@ -17,7 +17,8 @@ class VimeoCoverProcessor implements ScoutProcessorInterface
 
     public function process(ScoutResult $result): ScoutResult
     {
-        $highResPath = \preg_replace('/_\d+x\d+$/', '_1280x720', $result->image->getPath());
+        $noResPath = \preg_replace('/_\d+x\d+$/', '', $result->image->getPath());
+        $highResPath = \sprintf('%s_1280x720', $noResPath);
 
         $result->cover = $result->image->withPath($highResPath);
 

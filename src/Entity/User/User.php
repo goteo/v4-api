@@ -4,11 +4,13 @@ namespace App\Entity\User;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\AccountingOwnerInterface;
+use App\Entity\Address;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
 use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
+use App\Entity\Territory;
 use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
@@ -72,12 +74,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
 
-    /**
-     * The UserTokens owned by this User. Owner only property.
-     */
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
-    private Collection $tokens;
-
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Person $person = null;
 
@@ -123,16 +119,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column(nullable: true)]
     private ?array $links = null;
 
+    #[ORM\Embedded(class: Territory::class)]
+    private ?Territory $territory = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    /**
+     * @var Collection<int, Address>
+     */
+    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
+    private Collection $addresses;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
 
         $this->projects = new ArrayCollection();
-        $this->tokens = new ArrayCollection();
         $this->person = Person::for($this);
 
         $this->emailConfirmed = false;
         $this->active = false;
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -230,36 +238,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
             // set the owning side to null (unless already changed)
             if ($project->getOwner() === $this) {
                 $project->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, UserToken>
-     */
-    public function getTokens(): Collection
-    {
-        return $this->tokens;
-    }
-
-    public function addToken(UserToken $token): static
-    {
-        if (!$this->tokens->contains($token)) {
-            $this->tokens->add($token);
-            $token->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeToken(UserToken $token): static
-    {
-        if ($this->tokens->removeElement($token)) {
-            // set the owning side to null (unless already changed)
-            if ($token->getOwner() === $this) {
-                $token->setOwner(null);
             }
         }
 
@@ -396,6 +374,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setLinks(?array $links): static
     {
         $this->links = $links;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getTerritory(): ?Territory
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(?Territory $territory): static
+    {
+        $this->territory = $territory;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Address>
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(Address $address): static
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses->add($address);
+            $address->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(Address $address): static
+    {
+        if ($this->addresses->removeElement($address)) {
+            // set the owning side to null (unless already changed)
+            if ($address->getUser() === $this) {
+                $address->setUser(null);
+            }
+        }
 
         return $this;
     }

@@ -12,6 +12,8 @@ jobs:
 
     env:
       STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+      DOCTRINE_ENCRYPTION_ENCRYPT_KEY: "0Y3McEg51558fcreunKodhuP+Ua/Yf+tp43GxmBVY4Q="
+      DOCTRINE_ENCRYPTION_BLIND_INDEX_KEY: "cRt6Hf/3nEVG8XTBnZrOFCnOHJQ7PIE910EYIT+79EQ="
 
     steps:
       - uses: actions/checkout@v4

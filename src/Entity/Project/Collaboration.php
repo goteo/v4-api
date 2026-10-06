@@ -9,6 +9,8 @@ use App\Entity\LocalizedTrait;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\CollaborationRepository;
 use AutoMapper\Attribute\MapProvider;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -41,6 +43,17 @@ class Collaboration implements LocalizedInterface
 
     #[ORM\Column]
     private ?bool $isFulfilled = null;
+
+    /**
+     * @var Collection<int, CollaborationCandidacy>
+     */
+    #[ORM\OneToMany(targetEntity: CollaborationCandidacy::class, mappedBy: 'collaboration')]
+    private Collection $candidacies;
+
+    public function __construct()
+    {
+        $this->candidacies = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -91,6 +104,36 @@ class Collaboration implements LocalizedInterface
     public function setFulfilled(bool $isFulfilled): static
     {
         $this->isFulfilled = $isFulfilled;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CollaborationCandidacy>
+     */
+    public function getCandidacies(): Collection
+    {
+        return $this->candidacies;
+    }
+
+    public function addCandidacy(CollaborationCandidacy $candidacy): static
+    {
+        if (!$this->candidacies->contains($candidacy)) {
+            $this->candidacies->add($candidacy);
+            $candidacy->setCollaboration($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCandidacy(CollaborationCandidacy $candidacy): static
+    {
+        if ($this->candidacies->removeElement($candidacy)) {
+            // set the owning side to null (unless already changed)
+            if ($candidacy->getCollaboration() === $this) {
+                $candidacy->setCollaboration(null);
+            }
+        }
 
         return $this;
     }

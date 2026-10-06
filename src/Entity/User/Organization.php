@@ -2,11 +2,12 @@
 
 namespace App\Entity\User;
 
-use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
 use App\Mapping\Provider\OrganizationMapProvider;
 use App\Repository\User\OrganizationRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
+use Kyzegs\DoctrineEncryptionBundle\Attribute\BlindIndex;
+use Kyzegs\DoctrineEncryptionBundle\Attribute\Encrypted;
 
 #[MapProvider(OrganizationMapProvider::class)]
 #[ORM\Table(name: 'user_organization')]
@@ -21,9 +22,13 @@ class Organization
     /**
      * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     #[Encrypted()]
     private ?string $taxId = null;
+
+    #[ORM\Column(type: 'string', length: 64, unique: true, nullable: true)]
+    #[BlindIndex(sourceField: 'taxId', normalizer: BlindIndex::NORMALIZE_UPPERCASE)]
+    private ?string $taxIdLookup = null;
 
     /**
      * Organization legal name before government,
@@ -66,6 +71,18 @@ class Organization
     public function setTaxId(string $taxId): static
     {
         $this->taxId = $taxId;
+
+        return $this;
+    }
+
+    public function getTaxIdLookup(): ?string
+    {
+        return $this->taxIdLookup;
+    }
+
+    public function setTaxIdLookup(?string $taxIdLookup): static
+    {
+        $this->taxIdLookup = $taxIdLookup;
 
         return $this;
     }

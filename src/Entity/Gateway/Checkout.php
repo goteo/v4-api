@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[MapProvider(EntityMapProvider::class)]
 #[Gedmo\Loggable()]
 #[ORM\Index(fields: ['migratedId'])]
-#[ORM\Index(fields: ['gatewayName', 'id'])]
+#[ORM\Index(fields: ['gateway', 'id'])]
 #[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 class Checkout
 {
@@ -43,11 +43,11 @@ class Checkout
     private ?int $id = null;
 
     /**
-     * The name of the Gateway implementation to checkout with.
+     * The ID of the Gateway implementation to checkout with.
      */
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
-    private ?string $gatewayName = null;
+    private ?string $gatewayId = null;
 
     /**
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
@@ -114,14 +114,14 @@ class Checkout
         return $this->id;
     }
 
-    public function getGatewayName(): ?string
+    public function getGatewayId(): ?string
     {
-        return $this->gatewayName;
+        return $this->gatewayId;
     }
 
-    public function setGatewayName(string $gatewayName): static
+    public function setGatewayId(string $id): static
     {
-        $this->gatewayName = $gatewayName;
+        $this->gatewayId = $id;
 
         return $this;
     }

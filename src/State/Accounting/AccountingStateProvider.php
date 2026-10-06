@@ -26,11 +26,7 @@ class AccountingStateProvider implements ProviderInterface
     {
         if ($operation instanceof CollectionOperationInterface) {
             $accountings = $this->collectionProvider->provide($operation, $uriVariables, $context);
-
-            $resources = [];
-            foreach ($accountings as $accounting) {
-                $resources[] = $this->autoMapper->map($accounting, AccountingApiResource::class);
-            }
+            $resources = $this->autoMapper->mapCollection($accountings, AccountingApiResource::class);
 
             return new TraversablePaginator(
                 new \ArrayIterator($resources),
