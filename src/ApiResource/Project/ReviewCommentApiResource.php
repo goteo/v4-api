@@ -11,6 +11,7 @@ use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\ReviewComment;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\Validator\UserOwned;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -23,10 +24,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: ApiResourceStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Post()]
-#[API\Get()]
-#[API\Delete()]
-#[API\Patch()]
+#[API\Post(securityPostDenormalize: 'is_granted("REVIEWAREA_VIEW", object.area)')]
+#[API\Get(security: 'is_granted("REVIEWAREA_VIEW", object.area)')]
+#[API\Delete(security: 'is_granted("REVIEWAREA_VIEW", object.area)')]
 class ReviewCommentApiResource
 {
     use TimestampedCreationApiResource;
@@ -39,6 +39,7 @@ class ReviewCommentApiResource
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public ReviewAreaApiResource $area;
 
+    #[UserOwned()]
     #[Assert\NotBlank()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserApiResource $author;
