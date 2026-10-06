@@ -47,7 +47,7 @@ class ProjectCampaignReviewTest extends ApiTestCase
         return ProjectFactory::createOne([
             'owner' => $this->owner,
             'deadline' => $deadline,
-            'status' => ProjectStatus::InDraft
+            'status' => ProjectStatus::InDraft,
         ])->_real();
     }
 
