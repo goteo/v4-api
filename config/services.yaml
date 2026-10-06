@@ -89,6 +89,10 @@ services:
         arguments:
             - '%env(APP_ENV)%'
 
+    App\Service\UserService:
+        arguments:
+            $locale: '%env(APP_LOCALE)%'
+
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'

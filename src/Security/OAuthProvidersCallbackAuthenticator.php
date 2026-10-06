@@ -53,7 +53,7 @@ class OAuthProvidersCallbackAuthenticator extends AbstractAuthenticator
             if (!$user) {
                 $user = new User();
                 $user->setEmail($email);
-                $user->setHandle($this->userService->sequentializeHandle($email));
+                $user->setHandle($this->userService->generateHandle());
                 $user->setPassword($this->userPasswordHasher->hashPassword($user, \random_bytes(32)));
 
                 $person = Person::for($user);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9230762cbf676fa02e262fc9ffa99c80",
+    "content-hash": "8d32813645d12904ff872f458de31ce5",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -4509,6 +4509,62 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.7.0"
             },
             "time": "2025-12-06T11:56:16+00:00"
+        },
+        {
+            "name": "nubs/random-name-generator",
+            "version": "dev-feat/spanish-alliteration",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Platoniq/random-name-generator.git",
+                "reference": "9f6e9673fde7bea9503f31f63fdd2464e7543602"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Platoniq/random-name-generator/zipball/9f6e9673fde7bea9503f31f63fdd2464e7543602",
+                "reference": "9f6e9673fde7bea9503f31f63fdd2464e7543602",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~5.6 || ~7.0 || ~8.0"
+            },
+            "require-dev": {
+                "cinam/randomizer": ">=1.1.1,<2.0",
+                "php-coveralls/php-coveralls": "~2.4",
+                "phpunit/phpunit": "^5.0 || ^6.5 || ^7.0 || ^9.0",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nubs\\RandomNameGenerator\\": "src"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "./build.php"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Spencer Rinehart",
+                    "email": "anubis@overthemonkey.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A library to create interesting, sometimes entertaining, random names.",
+            "keywords": [
+                "alliteration",
+                "generator",
+                "random",
+                "video game"
+            ],
+            "support": {
+                "source": "https://github.com/Platoniq/random-name-generator/tree/feat/spanish-alliteration"
+            },
+            "time": "2026-10-05T12:03:22+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -14600,7 +14656,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "nubs/random-name-generator": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
