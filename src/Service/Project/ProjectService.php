@@ -4,6 +4,7 @@ namespace App\Service\Project;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ReviewType;
 use App\Entity\User\User;
 use App\Security\Voter\UserOwnedVoterTrait;
 
@@ -18,6 +19,11 @@ class ProjectService
         ProjectStatus::InFundingReviewToChange->value => [ProjectStatus::InFundingReviewToReview],
         ProjectStatus::ToFunding->value => [ProjectStatus::InFunding],
     ];
+
+    public function __construct(
+        private ReviewService $reviewService,
+        private CalendarService $calendarService,
+    ) {}
 
     /**
      * Check if an User can move a Project to some status.
@@ -46,5 +52,31 @@ class ProjectService
         }
 
         return false;
+    }
+
+    /**
+     * Moves a Project to a given ProjectStatus.
+     *
+     * @param ProjectStatus $to The new status to where the Project will move
+     *
+     * @return Project The resulting Project
+     */
+    public function transition(Project $project, ProjectStatus $to): Project
+    {
+        $from = $project->getStatus();
+
+        if ($from === $to) {
+            return $project;
+        }
+
+        $project->setStatus($to);
+
+        return match ([$from, $to]) {
+            [ProjectStatus::InDraft, ProjectStatus::ToCampaignReview] => $project->addReview($this->reviewService->makeReview(ReviewType::Campaign)),
+
+            [ProjectStatus::ToCampaign, ProjectStatus::InCampaign] => $project->setCalendar($this->calendarService->makeCalendar($project->getDeadline())),
+
+            default => $project,
+        };
     }
 }

@@ -385,6 +385,10 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         return $this->status;
     }
 
+    /**
+     * DO NOT call this method unless you know what you are doing:
+     * Instead use `ProjectService::transition` or you WILL miss side-effects.
+     */
     public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;

@@ -8,6 +8,7 @@ use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\User\User;
 use App\Factory\Project\ProjectFactory;
+use App\Service\Project\ProjectService;
 use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -18,12 +19,14 @@ class ProjectCalendarTest extends ApiTestCase
     use Factories;
 
     private EntityManagerInterface $entityManager;
+    private ProjectService $projectService;
     private User $owner;
 
     public function setUp(): void
     {
         self::bootKernel();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $this->projectService = static::getContainer()->get(ProjectService::class);
 
         $this->owner = $this->createTestUser();
         $this->entityManager->persist($this->owner);
@@ -57,8 +60,9 @@ class ProjectCalendarTest extends ApiTestCase
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
-        $project->setStatus(ProjectStatus::InCampaign);
+        $project = $this->projectService->transition($project, ProjectStatus::InCampaign);
 
+        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         return $project;

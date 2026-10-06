@@ -10,8 +10,8 @@ use App\ApiResource\Project\ProjectApiResource;
 use App\Dto\ProjectCreationDto;
 use App\Dto\ProjectUpdationDto;
 use App\Entity\Project\Project;
-use App\Entity\Project\ProjectCalendar;
 use App\Mapping\AutoMapper;
+use App\Service\Project\CalendarService;
 use App\Service\Project\ProjectService;
 use App\State\EntityStateProcessor;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -24,6 +24,7 @@ class ProjectStateProcessor implements ProcessorInterface
         private AutoMapper $autoMapper,
         private Security $security,
         private ProjectService $projectService,
+        private CalendarService $calendarService,
     ) {}
 
     /**
@@ -33,13 +34,11 @@ class ProjectStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        if ($data instanceof ProjectCreationDto) {
-            $project = $this->getProjectFromCreation($data);
-        } elseif ($data instanceof ProjectUpdationDto) {
-            $project = $this->getProjectFromUpdate($data, $context);
-        } else {
-            throw new \InvalidArgumentException('Unsupported input for Project resource');
-        }
+        $project = match ($data::class) {
+            ProjectCreationDto::class => $this->getProjectFromCreation($data),
+            ProjectUpdationDto::class => $this->getProjectFromUpdate($data, $context),
+            default => throw new \InvalidArgumentException('Unsupported input for Project resource'),
+        };
 
         $project = $this->entityStateProcessor->process($project, $operation, $uriVariables, $context);
 
@@ -60,7 +59,6 @@ class ProjectStateProcessor implements ProcessorInterface
         $project = $this->autoMapper->map($data, Project::class);
 
         $owner = $this->security->getUser();
-
         if (!$owner) {
             throw new AuthenticationException();
         }
@@ -68,27 +66,24 @@ class ProjectStateProcessor implements ProcessorInterface
         $project->setOwner($owner);
 
         if (!isset($data->calendar->release)) {
-            $data->calendar->release = new \DateTimeImmutable('+28 days');
+            $project->setCalendar($this->calendarService->makeCalendar(
+                $project->getDeadline(),
+                new \DateTimeImmutable('+28 days')
+            ));
         }
-
-        $calendar = new ProjectCalendar();
-        $calendar->release = $data->calendar->release;
-
-        $project->setCalendar($calendar);
 
         return $project;
     }
 
     private function getProjectFromUpdate(ProjectUpdationDto $data, array $context): Project
     {
-        /** @var Project */
-        $project = $this->autoMapper->map($context['previous_data'], Project::class);
-
         $actor = $this->security->getUser();
-
         if (!$actor) {
             throw new AuthenticationException();
         }
+
+        /** @var Project */
+        $project = $this->autoMapper->map($context['previous_data'], Project::class);
 
         if (isset($data->status) && $data->status !== $project->getStatus()) {
             if (!$this->projectService->canTransition($actor, $project, $data->status)) {
@@ -98,6 +93,8 @@ class ProjectStateProcessor implements ProcessorInterface
                     $data->status->value
                 ));
             }
+
+            $project = $this->projectService->transition($project, $data->status);
         }
 
         return $this->autoMapper->map($data, $project);
