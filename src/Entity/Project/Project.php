@@ -163,7 +163,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'project')]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'project', cascade: ['persist'])]
     private Collection $reviews;
 
     /*

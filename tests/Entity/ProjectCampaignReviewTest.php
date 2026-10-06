@@ -6,6 +6,7 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\Review;
 use App\Entity\Project\ReviewType;
 use App\Entity\User\User;
 use App\Factory\Project\ProjectFactory;
@@ -46,18 +47,20 @@ class ProjectCampaignReviewTest extends ApiTestCase
         return ProjectFactory::createOne([
             'owner' => $this->owner,
             'deadline' => $deadline,
+            'status' => ProjectStatus::InDraft
         ])->_real();
     }
 
-    private function createProjectAndSetToInCampaignReview(
-        ProjectDeadline $deadline = ProjectDeadline::Minimum,
-    ): Project {
-        $project = $this->createTestProject($deadline);
+    private function createProjectAndSetToInCampaignReview(): Project
+    {
+        $project = $this->createTestProject();
 
         $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         $project->setStatus(ProjectStatus::ToCampaignReview);
+
+        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         return $project;
@@ -66,7 +69,7 @@ class ProjectCampaignReviewTest extends ApiTestCase
     public function testCreatesReviewOnStatusChange(): void
     {
         $project = $this->createProjectAndSetToInCampaignReview();
-        $reviews = $project->getReviews();
+        $reviews = $this->entityManager->getRepository(Review::class)->findBy(['project' => $project->getId()]);
 
         $this->assertNotEmpty($reviews);
         $this->assertEquals(1, \count($reviews));
