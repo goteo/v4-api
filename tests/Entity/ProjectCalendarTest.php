@@ -65,8 +65,11 @@ class ProjectCalendarTest extends ApiTestCase
     public function testReleaseDateUpdatesOnCampaignStart(): void
     {
         $project = $this->createProjectAndSetToInCampaign();
+        $today = new \DateTime();
+        $today->setTime(0, 0, 0, 0);
 
         $this->assertNotNull($project->getCalendar()->release);
+        $this->assertGreaterThan($today, $project->getCalendar()->release);
     }
 
     public function testMinimumDeadlineIsSetCorrectly(): void
