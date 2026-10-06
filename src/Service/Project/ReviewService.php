@@ -32,22 +32,22 @@ class ReviewService
     private function getCampaignReviewAreas(): array
     {
         $config = new ReviewArea();
-        $config->setTitle('project.configuration');
+        $config->setTitle('configuration');
 
         $info = new ReviewArea();
-        $info->setTitle('project.info');
+        $info->setTitle('info');
 
         $rewards = new ReviewArea();
-        $rewards->setTitle('project.rewards');
+        $rewards->setTitle('rewards');
 
         $collabs = new ReviewArea();
-        $collabs->setTitle('project.collaborations');
+        $collabs->setTitle('collaborations');
 
         $budget = new ReviewArea();
-        $budget->setTitle('project.budget');
+        $budget->setTitle('budget');
 
         $about = new ReviewArea();
-        $about->setTitle('project.about');
+        $about->setTitle('about');
 
         return [
             $config,

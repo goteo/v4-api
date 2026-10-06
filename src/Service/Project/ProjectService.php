@@ -72,9 +72,13 @@ class ProjectService
         $project->setStatus($to);
 
         return match ([$from, $to]) {
-            [ProjectStatus::InDraft, ProjectStatus::ToCampaignReview] => $project->addReview($this->reviewService->makeReview(ReviewType::Campaign)),
+            [ProjectStatus::InDraft, ProjectStatus::ToCampaignReview] => $project->addReview(
+                $this->reviewService->makeReview(ReviewType::Campaign)
+            ),
 
-            [ProjectStatus::ToCampaign, ProjectStatus::InCampaign] => $project->setCalendar($this->calendarService->makeCalendar($project->getDeadline())),
+            [ProjectStatus::ToCampaign, ProjectStatus::InCampaign] => $project->setCalendar(
+                $this->calendarService->makeCalendar($project->getDeadline())
+            ),
 
             default => $project,
         };

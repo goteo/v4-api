@@ -34,7 +34,7 @@ class Review
     /**
      * @var Collection<int, ReviewArea>
      */
-    #[ORM\OneToMany(targetEntity: ReviewArea::class, mappedBy: 'review')]
+    #[ORM\OneToMany(targetEntity: ReviewArea::class, mappedBy: 'review', cascade: ['persist'])]
     private Collection $areas;
 
     public function __construct()
