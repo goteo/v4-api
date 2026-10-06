@@ -44,6 +44,7 @@ class ProjectCalendarTest extends ApiTestCase
     {
         return ProjectFactory::createOne([
             'owner' => $this->owner,
+            'status' => ProjectStatus::ToCampaign,
             'deadline' => $deadline,
         ])->_real();
     }
@@ -57,6 +58,7 @@ class ProjectCalendarTest extends ApiTestCase
         $this->entityManager->flush();
 
         $project->setStatus(ProjectStatus::InCampaign);
+
         $this->entityManager->flush();
 
         return $project;

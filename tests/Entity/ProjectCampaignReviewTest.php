@@ -60,7 +60,6 @@ class ProjectCampaignReviewTest extends ApiTestCase
 
         $project->setStatus(ProjectStatus::ToCampaignReview);
 
-        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         return $project;
