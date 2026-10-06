@@ -5,10 +5,13 @@ namespace App\Entity\Project;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ReviewCommentRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ReviewCommentRepository::class)]
 class ReviewComment
 {

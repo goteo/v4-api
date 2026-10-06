@@ -11,6 +11,7 @@ use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\ReviewComment;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
@@ -21,6 +22,11 @@ use App\State\ApiResourceStateProvider;
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
 )]
+#[API\GetCollection()]
+#[API\Post()]
+#[API\Get()]
+#[API\Delete()]
+#[API\Patch()]
 class ReviewCommentApiResource
 {
     use TimestampedCreationApiResource;
@@ -29,11 +35,15 @@ class ReviewCommentApiResource
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
+    #[Assert\NotBlank()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public ReviewAreaApiResource $area;
 
+    #[Assert\NotBlank()]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public UserApiResource $author;
 
+    #[Assert\NotBlank()]
+    #[Assert\Length(min: 15)]
     public string $body;
 }

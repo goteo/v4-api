@@ -16,7 +16,8 @@ use App\State\ApiResourceStateProvider;
  * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
  * \
  * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
- * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area.
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
  */
 #[API\ApiResource(
     shortName: 'ProjectReviewArea',
@@ -24,6 +25,11 @@ use App\State\ApiResourceStateProvider;
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class,
 )]
+#[API\GetCollection()]
+#[API\Post(security: 'is_granted("ROLE_ADMIN")')]
+#[API\Get(security: 'is_granted("REVIEWAREA_VIEW", object)')]
+#[API\Patch(security: 'is_granted("REVIEWAREA_EDIT", object)')]
+#[API\Delete(security: 'is_granted("REVIEWAREA_EDIT", object)')]
 class ReviewAreaApiResource
 {
     use TimestampedCreationApiResource;

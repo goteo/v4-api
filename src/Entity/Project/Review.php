@@ -5,11 +5,15 @@ namespace App\Entity\Project;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ReviewRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
 {
@@ -62,6 +66,11 @@ class Review
     public function getReviewer(): ?User
     {
         return $this->reviewer;
+    }
+
+    public function isReviewedBy(UserInterface $user): bool
+    {
+        return $this->reviewer?->getUserIdentifier() === $user->getUserIdentifier();
     }
 
     public function setReviewer(?User $reviewer): static

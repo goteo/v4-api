@@ -4,12 +4,15 @@ namespace App\Entity\Project;
 
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ReviewAreaRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ReviewAreaRepository::class)]
 class ReviewArea
 {
