@@ -4,6 +4,7 @@ namespace App\Repository\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
+use App\Repository\FindByIdOrSlugTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +18,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ProjectRepository extends ServiceEntityRepository
 {
+    use FindByIdOrSlugTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Project::class);
@@ -29,15 +32,6 @@ class ProjectRepository extends ServiceEntityRepository
             ->setParameter('val', $accounting->getId())
             ->getQuery()
             ->getOneOrNullResult();
-    }
-
-    public function findOneByIdOrSlug(mixed $idOrSlug): ?Project
-    {
-        if (\is_numeric($idOrSlug)) {
-            return $this->find($idOrSlug);
-        }
-
-        return $this->findOneBy(['slug' => $idOrSlug]);
     }
 
     //    /**
