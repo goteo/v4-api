@@ -8,13 +8,12 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Theme;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
-use App\State\CategoryStateProvider;
+use App\State\ThemeStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A Theme can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 themes, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
  * \
  * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
@@ -28,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_ADMIN")')]
 #[API\Get(
-    provider: CategoryStateProvider::class,
+    provider: ThemeStateProvider::class,
     uriTemplate: '/themes/{idOrSlug}',
     uriVariables: [
         'idOrSlug' => new API\Link(

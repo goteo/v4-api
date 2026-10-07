@@ -41,7 +41,13 @@ trait RedocExtensionsTrait
                     'ProjectSupport',
                     'ProjectCollaboration',
                     'ProjectCollaborationCandidacy',
+                ],
+            ],
+            [
+                'name' => 'Categorization',
+                'tags' => [
                     'Category',
+                    'Theme',
                 ],
             ],
             [
