@@ -13,6 +13,7 @@ use App\Entity\Matchfunding\MatchCallSubmission;
 use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\MigratedTrait;
 use App\Entity\Territory;
+use App\Entity\Theme;
 use App\Entity\User\User;
 use App\Entity\UserOwnedInterface;
 use App\Entity\UserOwnedTrait;
@@ -175,6 +176,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Column(nullable: true)]
     private ?array $links = null;
 
+    /**
+     * @var Collection<int, Theme>
+     */
+    #[ORM\ManyToMany(targetEntity: Theme::class)]
+    private Collection $themes;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -186,6 +193,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
         $this->categories = new ArrayCollection();
         $this->collaborations = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->themes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -648,6 +656,30 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setLinks(?array $links): static
     {
         $this->links = $links;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Theme>
+     */
+    public function getThemes(): Collection
+    {
+        return $this->themes;
+    }
+
+    public function addTheme(Theme $theme): static
+    {
+        if (!$this->themes->contains($theme)) {
+            $this->themes->add($theme);
+        }
+
+        return $this;
+    }
+
+    public function removeTheme(Theme $theme): static
+    {
+        $this->themes->removeElement($theme);
 
         return $this;
     }
