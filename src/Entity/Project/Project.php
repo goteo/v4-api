@@ -179,7 +179,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     /**
      * @var Collection<int, Theme>
      */
-    #[ORM\ManyToMany(targetEntity: Theme::class)]
+    #[ORM\ManyToMany(targetEntity: Theme::class, cascade: ['persist'])]
     private Collection $themes;
 
     public function __construct()
