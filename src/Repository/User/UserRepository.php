@@ -93,16 +93,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         ;
     }
 
-    public function countLikeHandle(string $handle): int
-    {
-        return (int) $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.handle LIKE :handle')
-            ->setParameter('handle', \sprintf('%%%s%%', $handle))
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

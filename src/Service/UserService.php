@@ -3,30 +3,39 @@
 namespace App\Service;
 
 use App\Repository\User\UserRepository;
+use Platoniq\RandomNameCombiner\NameGenerator;
+
+use function Symfony\Component\String\u;
 
 class UserService
 {
     public function __construct(
         private UserRepository $userRepository,
+        private string $locale,
     ) {}
 
     /**
-     * Builds a safe handle string and sequentalizes it based on existing similar handles.
+     * Generates a random, unused handle from two words in the app locale and 4 digits.
      *
-     * @param string $value The raw handle string
-     *
-     * @return string A handle-valid string with a suffixed sequence number
+     * @return string A handle-valid string, e.g. `leon_leal_0421`
      */
-    public function sequentializeHandle(string $value): string
+    public function generateHandle(): string
     {
-        $base = UserService::asHandle($value);
-
-        $count = $this->userRepository->countLikeHandle($base);
-        if ($count < 1) {
-            return $base;
+        try {
+            $generator = new NameGenerator($this->locale);
+        } catch (\InvalidArgumentException) {
+            $generator = new NameGenerator();
         }
 
-        return \sprintf('%s_%02d', $base, $count + 1);
+        do {
+            $handle = \sprintf(
+                '%s_%04d',
+                u($generator->getName())->ascii()->lower()->replaceMatches('/[^a-z]+/', '_')->truncate(25)->trimEnd('_'),
+                \random_int(0, 9999)
+            );
+        } while ($this->userRepository->findOneBy(['handle' => $handle]));
+
+        return $handle;
     }
 
     /**
