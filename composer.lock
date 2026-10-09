@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d32813645d12904ff872f458de31ce5",
+    "content-hash": "19483d6dc1cf7bf15ae747d83df775e8",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -4511,62 +4511,6 @@
             "time": "2025-12-06T11:56:16+00:00"
         },
         {
-            "name": "nubs/random-name-generator",
-            "version": "dev-feat/spanish-alliteration",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Platoniq/random-name-generator.git",
-                "reference": "9f6e9673fde7bea9503f31f63fdd2464e7543602"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Platoniq/random-name-generator/zipball/9f6e9673fde7bea9503f31f63fdd2464e7543602",
-                "reference": "9f6e9673fde7bea9503f31f63fdd2464e7543602",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~5.6 || ~7.0 || ~8.0"
-            },
-            "require-dev": {
-                "cinam/randomizer": ">=1.1.1,<2.0",
-                "php-coveralls/php-coveralls": "~2.4",
-                "phpunit/phpunit": "^5.0 || ^6.5 || ^7.0 || ^9.0",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Nubs\\RandomNameGenerator\\": "src"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "./build.php"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Spencer Rinehart",
-                    "email": "anubis@overthemonkey.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A library to create interesting, sometimes entertaining, random names.",
-            "keywords": [
-                "alliteration",
-                "generator",
-                "random",
-                "video game"
-            ],
-            "support": {
-                "source": "https://github.com/Platoniq/random-name-generator/tree/feat/spanish-alliteration"
-            },
-            "time": "2026-10-05T12:03:22+00:00"
-        },
-        {
             "name": "nyholm/psr7",
             "version": "1.8.2",
             "source": {
@@ -5047,6 +4991,53 @@
                 "source": "https://github.com/phpstan/phpdoc-parser/tree/1.33.0"
             },
             "time": "2024-10-13T11:25:22+00:00"
+        },
+        {
+            "name": "platoniq/random-name-combiner",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Platoniq/random-name-combiner.git",
+                "reference": "bf4233917b06ffdb0e4ff10587e2343998c1c263"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Platoniq/random-name-combiner/zipball/bf4233917b06ffdb0e4ff10587e2343998c1c263",
+                "reference": "bf4233917b06ffdb0e4ff10587e2343998c1c263",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Platoniq\\RandomNameCombiner\\": "src"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit tests"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Random adjective + noun names in English and Spanish, without alliteration constraints.",
+            "keywords": [
+                "generator",
+                "name",
+                "random"
+            ],
+            "support": {
+                "source": "https://github.com/Platoniq/random-name-combiner/tree/main",
+                "issues": "https://github.com/Platoniq/random-name-combiner/issues"
+            },
+            "time": "2026-10-09T09:37:46+00:00"
         },
         {
             "name": "psr/cache",
@@ -14657,7 +14648,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nubs/random-name-generator": 20
+        "platoniq/random-name-combiner": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
