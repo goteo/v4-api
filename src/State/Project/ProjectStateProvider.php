@@ -20,14 +20,8 @@ class ProjectStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $idOrSlug = $uriVariables['idOrSlug'];
-
-        $queryBuilder = $this->projectRepository->createQueryBuilder('p');
-        $queryBuilder->where(\is_numeric($idOrSlug) ? 'p.id = :value' : 'p.slug = :value');
-        $queryBuilder->setParameter('value', $idOrSlug);
-
+        $queryBuilder = $this->projectRepository->getByIdOrSlugQuery($uriVariables['idOrSlug']);
         $query = $this->addLocalizationHints($queryBuilder, $this->getAcceptedLanguages($context));
-
         $project = $query->getOneOrNullResult();
 
         if ($project === null) {

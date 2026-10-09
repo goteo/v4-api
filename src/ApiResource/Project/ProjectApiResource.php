@@ -10,6 +10,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\CategoryApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\ApiResource\User\UserApiResource;
@@ -133,6 +134,16 @@ class ProjectApiResource
     #[API\ApiProperty(writableLink: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public array $categories;
+
+    /**
+     * A list of the available Themes of this Project.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[Assert\NotBlank()]
+    #[API\ApiProperty(writableLink: false)]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
+    public array $themes;
 
     /**
      * ISO 3166 data about the Project's territory of interest.
