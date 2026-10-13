@@ -39,7 +39,7 @@ class RewardClaim implements UserOwnedInterface
     #[ORM\Column(enumType: RewardClaimStatus::class)]
     private ?RewardClaimStatus $status = RewardClaimStatus::InPending;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     private ?Address $address = null;
 
     public function getId(): ?int

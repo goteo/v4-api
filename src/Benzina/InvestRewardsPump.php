@@ -162,7 +162,7 @@ class InvestRewardsPump implements PumpInterface
 
         $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$result || $result['name'] === null) {
+        if (!$result || $result['name'] === null || $result['address'] === null || $result['address'] === '') {
             return null;
         }
 

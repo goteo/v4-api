@@ -128,7 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     /**
      * @var Collection<int, Address>
      */
-    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $addresses;
 
     public function __construct()
