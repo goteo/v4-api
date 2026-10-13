@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Repository\User\UserRepository;
-use Nubs\RandomNameGenerator\Combination;
+use Platoniq\RandomNameGenerator\Combination;
 
 use function Symfony\Component\String\u;
 
