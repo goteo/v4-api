@@ -16,35 +16,41 @@ class AddressCreationDto
      * First name(s) of the person receiving the shipment.
      */
     #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     public string $firstName;
 
     /**
      * Last name(s) of the person receiving the shipment.
      */
     #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     public string $lastName;
 
     /**
      * Line 1: usually street name and number.
      */
     #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     public string $line1;
 
     /**
      * Line 2: additional data like apartment number, door, etc.
      */
+    #[Assert\Length(min: 1)]
     public ?string $line2 = null;
 
     /**
      * Name of the city, or the lowest-available type of settlement to which the address lines belong.
      */
     #[Assert\NotBlank()]
+    #[Assert\Length(min: 1)]
     public string $city;
 
     /**
      * Postal/PIN/ZIP code to which the address lines belong.
      */
     #[Assert\NotBlank()]
+    #[Assert\Length(min: 3)]
     public string $postCode;
 
     /**
