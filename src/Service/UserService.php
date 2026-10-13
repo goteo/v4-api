@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Repository\User\UserRepository;
-use Platoniq\RandomNameCombiner\NameGenerator;
+use Nubs\RandomNameGenerator\Combination;
 
 use function Symfony\Component\String\u;
 
@@ -22,9 +22,9 @@ class UserService
     public function generateHandle(): string
     {
         try {
-            $generator = new NameGenerator($this->locale);
+            $generator = new Combination(null, $this->locale);
         } catch (\InvalidArgumentException) {
-            $generator = new NameGenerator();
+            $generator = new Combination();
         }
 
         do {
