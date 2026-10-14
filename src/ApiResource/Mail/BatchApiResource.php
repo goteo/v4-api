@@ -4,7 +4,6 @@ namespace App\ApiResource\Mail;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\Entity\Address;
 use App\Entity\Mail\Batch;
 use App\Entity\Mail\BatchStatus;
 use App\State\ApiResourceStateProcessor;

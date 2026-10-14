@@ -23,4 +23,9 @@ enum BatchStatus: string
      * The Batch has been fully sent.
      */
     case Sent = 'sent';
+
+    /**
+     * All of the recipients of the Batch were attempted, but some had errors.
+     */
+    case SentErrors = 'sent.errors';
 }
