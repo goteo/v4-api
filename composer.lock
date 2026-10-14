@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83ee4815dc3ef7a20816b5072a1de183",
+    "content-hash": "882ee0e2413f397594749458366da4cd",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -4994,7 +4994,7 @@
         },
         {
             "name": "platoniq/random-name-generator",
-            "version": "dev-master",
+            "version": "v1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Platoniq/random-name-generator.git",
@@ -5015,18 +5015,13 @@
                 "phpunit/phpunit": "^13.4",
                 "squizlabs/php_codesniffer": "^4.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Platoniq\\RandomNameGenerator\\": "src"
                 }
             },
-            "scripts": {
-                "test": [
-                    "./build.php"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5050,7 +5045,7 @@
                 "video game"
             ],
             "support": {
-                "source": "https://github.com/Platoniq/random-name-generator/tree/master"
+                "source": "https://github.com/Platoniq/random-name-generator/tree/v1.0"
             },
             "time": "2026-10-13T14:10:58+00:00"
         },
@@ -14662,9 +14657,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "platoniq/random-name-generator": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
