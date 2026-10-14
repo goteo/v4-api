@@ -11,6 +11,7 @@ use App\Entity\User\User;
 use App\Gateway\ChargeStatus;
 use App\Repository\Gateway\ChargeRepository;
 use App\Repository\Project\RewardRepository;
+use App\Service\Project\TerritoryService;
 use App\Service\UserService;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
@@ -21,6 +22,7 @@ class InvestRewardsPump implements PumpInterface
     use DatabasePumpTrait;
     use DoctrineLoggablePumpTrait;
     use InvestsPumpTrait;
+    use TerritoryPumpTrait;
 
     /** @var array<string, int> */
     private array $userCache = [];
@@ -35,6 +37,7 @@ class InvestRewardsPump implements PumpInterface
         private RewardRepository $rewardRepository,
         private PumpedUserRepository $userRepository,
         private ChargeRepository $chargeRepository,
+        private TerritoryService $territoryService,
     ) {
         $this->setFlushBatchSize(8);
     }
@@ -162,11 +165,13 @@ class InvestRewardsPump implements PumpInterface
 
         $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$result || $result['name'] === null) {
+        if (!$result || $result['name'] === null || $result['address'] === null || $result['address'] === '') {
             return null;
         }
 
         [$firstName, $lastName] = UserService::guessNames($result['name']);
+
+        $country = $this->territoryService->search($this->cleanLocation($result['country']))?->country;
 
         $address = new Address();
         $address->setUser($claim->getOwner());
@@ -175,7 +180,7 @@ class InvestRewardsPump implements PumpInterface
         $address->setLine1($result['address']);
         $address->setCity($result['location']);
         $address->setPostCode($result['zipcode']);
-        $address->setCountry($result['country']);
+        $address->setCountry($country);
 
         return $address;
     }
