@@ -23,7 +23,7 @@ class UserServiceTest extends KernelTestCase
         $validator = static::getContainer()->get(ValidatorInterface::class);
 
         $handles = [];
-        for ($i = 0; $i < 5; ++$i) {
+        for ($i = 0; $i < 128; ++$i) {
             $handle = $userService->generateHandle();
 
             $this->assertCount(0, $validator->validate($handle, new UserHandle()));
