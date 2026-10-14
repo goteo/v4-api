@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Repository\User\UserRepository;
+use App\Validator\UserHandle;
 use Platoniq\RandomNameGenerator\Combination;
 
 use function Symfony\Component\String\u;
@@ -30,7 +31,7 @@ class UserService
         do {
             $handle = \sprintf(
                 '%s_%04d',
-                u($generator->getName())->ascii()->lower()->replaceMatches('/[^a-z]+/', '_')->truncate(25)->trimEnd('_'),
+                u($generator->getName())->ascii()->lower()->replaceMatches(\sprintf('/[^%s]+/', UserHandle::CHARACTERS), '_')->truncate(UserHandle::MAX_LENGTH - 5)->trimEnd('_'),
                 \random_int(0, 9999)
             );
         } while ($this->userRepository->findOneBy(['handle' => $handle]));
