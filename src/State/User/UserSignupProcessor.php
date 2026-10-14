@@ -33,7 +33,7 @@ final class UserSignupProcessor implements ProcessorInterface
         /** @var User */
         $user = $this->autoMapper->map($data, User::class);
 
-        $user->setHandle($this->userService->sequentializeHandle($data->email));
+        $user->setHandle($this->userService->generateHandle());
         $user->setPassword($this->userPasswordHasher->hashPassword($user, $data->password));
 
         if ($user->isType(UserType::Organization)) {

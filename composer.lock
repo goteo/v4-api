@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9230762cbf676fa02e262fc9ffa99c80",
+    "content-hash": "882ee0e2413f397594749458366da4cd",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -4991,6 +4991,63 @@
                 "source": "https://github.com/phpstan/phpdoc-parser/tree/1.33.0"
             },
             "time": "2024-10-13T11:25:22+00:00"
+        },
+        {
+            "name": "platoniq/random-name-generator",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Platoniq/random-name-generator.git",
+                "reference": "9ef94c634eda37ed1732d1152bf278eed7048a35"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Platoniq/random-name-generator/zipball/9ef94c634eda37ed1732d1152bf278eed7048a35",
+                "reference": "9ef94c634eda37ed1732d1152bf278eed7048a35",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~5.6 || ~7.0 || ~8.0"
+            },
+            "require-dev": {
+                "cinam/randomizer": "^1.1",
+                "php-coveralls/php-coveralls": "^2.9",
+                "phpunit/phpunit": "^13.4",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Platoniq\\RandomNameGenerator\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Spencer Rinehart",
+                    "email": "anubis@overthemonkey.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Platoniq",
+                    "email": "dev@platoniq.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A library to create interesting, sometimes entertaining, random names with multi-language support.",
+            "keywords": [
+                "alliteration",
+                "generator",
+                "random",
+                "video game"
+            ],
+            "support": {
+                "source": "https://github.com/Platoniq/random-name-generator/tree/v1.0"
+            },
+            "time": "2026-10-13T14:10:58+00:00"
         },
         {
             "name": "psr/cache",
