@@ -74,7 +74,8 @@ class ProjectsRewardsPump implements PumpInterface
         $reward->setDescription($record['description'] ?? $record['reward']);
         $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
         $reward->setIsFinite($record['units'] > 0);
-        $reward->setUnitsTotal($record['units'] ?? 0);
+        $reward->setUnitsTotal($record['units'] > 0 ? $record['units'] : null);
+        $reward->setHasShipping($record['units'] > 0);
 
         $this->setPreventFlushAndClear(true);
         $this->persist($reward, $context);

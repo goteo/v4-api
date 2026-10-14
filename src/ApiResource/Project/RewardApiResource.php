@@ -71,7 +71,15 @@ class RewardApiResource
     public MoneyInput $money;
 
     /**
-     * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
+     * Rewards might include something that needs to be delivered to the User claiming the Reward.
+     */
+    #[Assert\NotNull()]
+    #[Assert\Type('bool')]
+    #[API\ApiFilter(BooleanFilter::class)]
+    public bool $hasShipping = false;
+
+    /**
+     * Rewards might be finite, i.e: has a limited amount of existing `unitsTotal`.
      */
     #[Assert\NotNull()]
     #[Assert\Type('bool')]
