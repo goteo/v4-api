@@ -6,7 +6,7 @@ use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\LocalizedTrait;
 use App\Mapping\Provider\EntityMapProvider;
-use App\Repository\Mail\BatchRepository;
+use App\Repository\Mail\BroadcastRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,8 +14,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
-#[ORM\Entity(repositoryClass: BatchRepository::class)]
-class Batch
+#[ORM\Entity(repositoryClass: BroadcastRepository::class)]
+class Broadcast
 {
     use DateCreatedTrait;
     use DateUpdatedTrait;
@@ -38,22 +38,22 @@ class Batch
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $scheduledAt = null;
 
-    #[ORM\Column(enumType: BatchStatus::class)]
-    private ?BatchStatus $status = null;
+    #[ORM\Column(enumType: BroadcastStatus::class)]
+    private ?BroadcastStatus $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'batches')]
+    #[ORM\ManyToOne(inversedBy: 'broadcasts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Audience $audience = null;
 
     /**
-     * @var Collection<int, BatchRecipient>
+     * @var Collection<int, Dispatch>
      */
-    #[ORM\OneToMany(targetEntity: BatchRecipient::class, mappedBy: 'batch')]
-    private Collection $recipients;
+    #[ORM\OneToMany(targetEntity: Dispatch::class, mappedBy: 'broadcast')]
+    private Collection $dispatchs;
 
     public function __construct()
     {
-        $this->recipients = new ArrayCollection();
+        $this->dispatchs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,12 +109,12 @@ class Batch
         return $this;
     }
 
-    public function getStatus(): ?BatchStatus
+    public function getStatus(): ?BroadcastStatus
     {
         return $this->status;
     }
 
-    public function setStatus(BatchStatus $status): static
+    public function setStatus(BroadcastStatus $status): static
     {
         $this->status = $status;
 
@@ -134,29 +134,29 @@ class Batch
     }
 
     /**
-     * @return Collection<int, BatchRecipient>
+     * @return Collection<int, Dispatch>
      */
-    public function getRecipients(): Collection
+    public function getDispatchs(): Collection
     {
-        return $this->recipients;
+        return $this->dispatchs;
     }
 
-    public function addRecipient(BatchRecipient $recipient): static
+    public function addDispatch(Dispatch $dispatch): static
     {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients->add($recipient);
-            $recipient->setBatch($this);
+        if (!$this->dispatchs->contains($dispatch)) {
+            $this->dispatchs->add($dispatch);
+            $dispatch->setBroadcast($this);
         }
 
         return $this;
     }
 
-    public function removeRecipient(BatchRecipient $recipient): static
+    public function removeDispatch(Dispatch $dispatch): static
     {
-        if ($this->recipients->removeElement($recipient)) {
+        if ($this->dispatchs->removeElement($dispatch)) {
             // set the owning side to null (unless already changed)
-            if ($recipient->getBatch() === $this) {
-                $recipient->setBatch(null);
+            if ($dispatch->getBroadcast() === $this) {
+                $dispatch->setBroadcast(null);
             }
         }
 

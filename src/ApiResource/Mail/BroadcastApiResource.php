@@ -4,23 +4,23 @@ namespace App\ApiResource\Mail;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\Entity\Mail\Batch;
-use App\Entity\Mail\BatchStatus;
+use App\Entity\Mail\Broadcast;
+use App\Entity\Mail\BroadcastStatus;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * MailBatches store bulk emailing jobs.
+ * MailBroadcasts are single message distributed to many Users via a MailAudience.
  */
 #[API\ApiResource(
-    shortName: 'MailBatch',
-    stateOptions: new Options(entityClass: Batch::class),
+    shortName: 'MailBroadcast',
+    stateOptions: new Options(entityClass: Broadcast::class),
     processor: ApiResourceStateProcessor::class,
     provider: ApiResourceStateProvider::class,
     security: 'is_granted("ROLE_ADMIN")'
 )]
-class BatchApiResource
+class BroadcastApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
@@ -44,13 +44,13 @@ class BatchApiResource
     public string $subject;
 
     /**
-     * Rich-text available message body. You can include `{{variables}}`, to be interpolated with recipient's data.
+     * Rich-text available message body. You can include `{{variables}}`, to be interpolated with user's data.
      */
     #[Assert\NotBlank()]
     #[API\ApiProperty(
         openapiContext: [
             'type' => 'string',
-            'example' => 'Hi {{ recipient.firstName }}',
+            'example' => 'Hi {{ user.firstName }}',
         ],
     )]
     public string $body;
@@ -59,8 +59,8 @@ class BatchApiResource
      * The status of the batch job.\
      * `in_sending` and `sent` can only be set by the job processor.
      */
-    #[Assert\Choice(choices: [BatchStatus::InDraft, BatchStatus::ToSending])]
-    public BatchStatus $status = BatchStatus::InDraft;
+    #[Assert\Choice(choices: [BroadcastStatus::InDraft, BroadcastStatus::ToSending])]
+    public BroadcastStatus $status = BroadcastStatus::InDraft;
 
     /**
      * The date at which the sending started,

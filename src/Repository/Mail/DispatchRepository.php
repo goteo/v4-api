@@ -2,22 +2,22 @@
 
 namespace App\Repository\Mail;
 
-use App\Entity\Mail\BatchRecipient;
+use App\Entity\Mail\Dispatch;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<BatchRecipient>
+ * @extends ServiceEntityRepository<Dispatch>
  */
-class BatchRecipientRepository extends ServiceEntityRepository
+class DispatchRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, BatchRecipient::class);
+        parent::__construct($registry, Dispatch::class);
     }
 
     //    /**
-    //     * @return BatchRecipient[] Returns an array of BatchRecipient objects
+    //     * @return Dispatch[] Returns an array of Dispatch objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class BatchRecipientRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?BatchRecipient
+    //    public function findOneBySomeField($value): ?Dispatch
     //    {
     //        return $this->createQueryBuilder('b')
     //            ->andWhere('b.exampleField = :val')

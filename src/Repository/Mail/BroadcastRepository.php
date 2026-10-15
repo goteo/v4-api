@@ -2,22 +2,22 @@
 
 namespace App\Repository\Mail;
 
-use App\Entity\Mail\Batch;
+use App\Entity\Mail\Broadcast;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Batch>
+ * @extends ServiceEntityRepository<Broadcast>
  */
-class BatchRepository extends ServiceEntityRepository
+class BroadcastRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Batch::class);
+        parent::__construct($registry, Broadcast::class);
     }
 
     //    /**
-    //     * @return Batch[] Returns an array of Batch objects
+    //     * @return Broadcast[] Returns an array of Broadcast objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class BatchRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Batch
+    //    public function findOneBySomeField($value): ?Broadcast
     //    {
     //        return $this->createQueryBuilder('m')
     //            ->andWhere('m.exampleField = :val')

@@ -11,7 +11,7 @@ use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * MailAudiences are criteria-based, dynamic target lists of recipient Users for MailBatch records.
+ * MailAudiences are criteria-based, dynamic target lists of recipient Users for MailBroadcast records.
  */
 #[API\ApiResource(
     shortName: 'MailAudience',
@@ -33,7 +33,7 @@ class AudienceApiResource
 
     /**
      * Criteria used to select the target Users.
-     * 
+     *
      * @var AudienceCriteria[]
      */
     #[Assert\NotBlank()]
@@ -43,8 +43,8 @@ class AudienceApiResource
                 [
                     'subject' => 'user.dateCreated',
                     'operator' => 'gt',
-                    'referent' => '2026-01-01'
-                ]
+                    'referent' => '2026-01-01',
+                ],
             ],
         ],
     )]

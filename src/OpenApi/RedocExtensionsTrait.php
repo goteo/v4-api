@@ -80,8 +80,8 @@ trait RedocExtensionsTrait
                 'name' => 'Mailing',
                 'tags' => [
                     'MailAudience',
-                    'MailBatch',
-                    'MailBatchRecipient',
+                    'MailBroadcast',
+                    'MailDispatch',
                 ],
             ],
         ];

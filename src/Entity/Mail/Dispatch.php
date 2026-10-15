@@ -4,23 +4,24 @@ namespace App\Entity\Mail;
 
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
-use App\Repository\Mail\BatchRecipientRepository;
+use App\Repository\Mail\DispatchRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[MapProvider(EntityMapProvider::class)]
-#[ORM\Entity(repositoryClass: BatchRecipientRepository::class)]
-class BatchRecipient
+#[ORM\Entity(repositoryClass: DispatchRepository::class)]
+#[ORM\UniqueConstraint(fields: ['broadcast', 'user'])]
+class Dispatch
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'recipients')]
+    #[ORM\ManyToOne(inversedBy: 'dispatchs')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Batch $batch = null;
+    private ?Broadcast $broadcast = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -32,22 +33,22 @@ class BatchRecipient
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $error = null;
 
-    #[ORM\Column(enumType: BatchRecipientStatus::class)]
-    private ?BatchRecipientStatus $status = null;
+    #[ORM\Column(enumType: DispatchStatus::class)]
+    private ?DispatchStatus $status = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getBatch(): ?Batch
+    public function getBroadcast(): ?Broadcast
     {
-        return $this->batch;
+        return $this->broadcast;
     }
 
-    public function setBatch(?Batch $batch): static
+    public function setBroadcast(?Broadcast $broadcast): static
     {
-        $this->batch = $batch;
+        $this->broadcast = $broadcast;
 
         return $this;
     }
@@ -88,12 +89,12 @@ class BatchRecipient
         return $this;
     }
 
-    public function getStatus(): ?BatchRecipientStatus
+    public function getStatus(): ?DispatchStatus
     {
         return $this->status;
     }
 
-    public function setStatus(BatchRecipientStatus $status): static
+    public function setStatus(DispatchStatus $status): static
     {
         $this->status = $status;
 

@@ -2,30 +2,30 @@
 
 namespace App\Entity\Mail;
 
-enum BatchStatus: string
+enum BroadcastStatus: string
 {
     /**
-     * The Batch is not to be sent.
+     * The Broadcast is a work-in-progress not to be sent.
      */
     case InDraft = 'in_draft';
 
     /**
-     * The Batch should be sent.
+     * The Broadcast should be sent.
      */
     case ToSending = 'to_sending';
 
     /**
-     * The Batch is being sent.
+     * The Broadcast is being sent.
      */
     case InSending = 'in_sending';
 
     /**
-     * The Batch has been fully sent.
+     * The Broadcast has been fully sent.
      */
     case Sent = 'sent';
 
     /**
-     * All of the recipients of the Batch were attempted, but some had errors.
+     * All of the Dispatchs of the Broadcast were attempted, but some had errors.
      */
     case SentErrors = 'sent.errors';
 }

@@ -25,14 +25,14 @@ class Audience
     private array $criteria = [];
 
     /**
-     * @var Collection<int, Batch>
+     * @var Collection<int, Broadcast>
      */
-    #[ORM\OneToMany(targetEntity: Batch::class, mappedBy: 'audience')]
-    private Collection $batches;
+    #[ORM\OneToMany(targetEntity: Broadcast::class, mappedBy: 'audience')]
+    private Collection $broadcasts;
 
     public function __construct()
     {
-        $this->batches = new ArrayCollection();
+        $this->broadcasts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,29 +71,29 @@ class Audience
     }
 
     /**
-     * @return Collection<int, Batch>
+     * @return Collection<int, Broadcast>
      */
-    public function getBatches(): Collection
+    public function getBroadcastes(): Collection
     {
-        return $this->batches;
+        return $this->broadcasts;
     }
 
-    public function addBatch(Batch $batch): static
+    public function addBroadcast(Broadcast $broadcast): static
     {
-        if (!$this->batches->contains($batch)) {
-            $this->batches->add($batch);
-            $batch->setAudience($this);
+        if (!$this->broadcasts->contains($broadcast)) {
+            $this->broadcasts->add($broadcast);
+            $broadcast->setAudience($this);
         }
 
         return $this;
     }
 
-    public function removeBatch(Batch $batch): static
+    public function removeBroadcast(Broadcast $broadcast): static
     {
-        if ($this->batches->removeElement($batch)) {
+        if ($this->broadcasts->removeElement($broadcast)) {
             // set the owning side to null (unless already changed)
-            if ($batch->getAudience() === $this) {
-                $batch->setAudience(null);
+            if ($broadcast->getAudience() === $this) {
+                $broadcast->setAudience(null);
             }
         }
 

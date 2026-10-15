@@ -5,32 +5,32 @@ namespace App\ApiResource\Mail;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\User\UserApiResource;
-use App\Entity\Mail\BatchRecipient;
-use App\Entity\Mail\BatchRecipientStatus;
+use App\Entity\Mail\Dispatch;
+use App\Entity\Mail\DispatchStatus;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 
 /**
- * MailBatchRecipients represent delivery of a MailBatch to one MailAudience member.
+ * MailDispatchs represent delivery of a MailBroadcast to one MailAudience member.
  */
 #[API\ApiResource(
-    shortName: 'MailBatchRecipient',
-    stateOptions: new Options(entityClass: BatchRecipient::class),
+    shortName: 'MailDispatch',
+    stateOptions: new Options(entityClass: Dispatch::class),
     processor: ApiResourceStateProcessor::class,
     provider: ApiResourceStateProvider::class,
     security: 'is_granted("ROLE_ADMIN")'
 )]
 #[API\GetCollection()]
 #[API\Get()]
-class BatchRecipientApiResource
+class DispatchApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
 
     /**
-     * The MailBatch.
+     * The MailBroadcast.
      */
-    public BatchApiResource $batch;
+    public BroadcastApiResource $batch;
 
     /**
      * The target User.
@@ -40,7 +40,7 @@ class BatchRecipientApiResource
     /**
      * The status of the delivery.
      */
-    public ?BatchRecipientStatus $status = null;
+    public ?DispatchStatus $status = null;
 
     /**
      * The date at which the last delivery attempt happened.
