@@ -59,7 +59,7 @@ class BroadcastApiResource
      * The status of the batch job.\
      * `in_sending` and `sent` can only be set by the job processor.
      */
-    #[Assert\Choice(choices: [BroadcastStatus::InDraft, BroadcastStatus::ToSending])]
+    #[Assert\Choice(choices: [BroadcastStatus::InDraft, BroadcastStatus::ToProcess])]
     public BroadcastStatus $status = BroadcastStatus::InDraft;
 
     /**

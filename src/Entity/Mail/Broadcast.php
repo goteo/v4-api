@@ -5,6 +5,7 @@ namespace App\Entity\Mail;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\LocalizedTrait;
+use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Mail\BroadcastRepository;
 use AutoMapper\Attribute\MapProvider;
@@ -50,6 +51,9 @@ class Broadcast
      */
     #[ORM\OneToMany(targetEntity: Dispatch::class, mappedBy: 'broadcast')]
     private Collection $dispatchs;
+
+    #[ORM\ManyToOne]
+    private ?User $dispatchCursor = null;
 
     public function __construct()
     {
@@ -159,6 +163,18 @@ class Broadcast
                 $dispatch->setBroadcast(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getDispatchCursor(): ?User
+    {
+        return $this->dispatchCursor;
+    }
+
+    public function setDispatchCursor(?User $dispatchCursor): static
+    {
+        $this->dispatchCursor = $dispatchCursor;
 
         return $this;
     }

@@ -5,27 +5,22 @@ namespace App\Entity\Mail;
 enum BroadcastStatus: string
 {
     /**
-     * The Broadcast is a work-in-progress not to be sent.
+     * The Broadcast is a work-in-progress not to be processed.
      */
     case InDraft = 'in_draft';
 
     /**
-     * The Broadcast should be sent.
+     * Waiting for Dispatch generation.
      */
-    case ToSending = 'to_sending';
+    case ToProcess = 'to_process';
 
     /**
-     * The Broadcast is being sent.
+     * Dispatch records are being generated.
      */
-    case InSending = 'in_sending';
+    case InProcess = 'in_process';
 
     /**
-     * The Broadcast has been fully sent.
+     * All the Dispatch records have been generated.
      */
-    case Sent = 'sent';
-
-    /**
-     * All of the Dispatchs of the Broadcast were attempted, but some had errors.
-     */
-    case SentErrors = 'sent.errors';
+    case Processed = 'processed';
 }
