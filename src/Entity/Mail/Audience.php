@@ -49,11 +49,17 @@ class Audience
         return $this;
     }
 
+    /**
+     * @return AudienceCriteria[]
+     */
     public function getCriteria(): array
     {
         return $this->criteria;
     }
 
+    /**
+     * @param AudienceCriteria[] $criteria
+     */
     public function setCriteria(array $criteria): static
     {
         $this->criteria = $criteria;

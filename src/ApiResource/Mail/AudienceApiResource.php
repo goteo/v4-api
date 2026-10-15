@@ -5,6 +5,7 @@ namespace App\ApiResource\Mail;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Mail\Audience;
+use App\Entity\Mail\AudienceCriteria;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -32,16 +33,18 @@ class AudienceApiResource
 
     /**
      * Criteria used to select the target Users.
+     * 
+     * @var AudienceCriteria[]
      */
     #[Assert\NotBlank()]
     #[API\ApiProperty(
         openapiContext: [
-            'type' => 'object',
-            'additionalProperties' => true,
             'example' => [
-                'active' => true,
-                'country' => 'ES',
-                'roles' => ['ROLE_USER'],
+                [
+                    'subject' => 'user.dateCreated',
+                    'operator' => 'gt',
+                    'referent' => '2026-01-01'
+                ]
             ],
         ],
     )]
