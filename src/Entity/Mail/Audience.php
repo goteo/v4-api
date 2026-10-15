@@ -57,7 +57,7 @@ class Audience
      */
     public function getCriteria(): array
     {
-        return $this->criteria;
+        return array_map(fn($v) => AudienceCriteria::fromArray($v), $this->criteria);
     }
 
     /**
@@ -65,7 +65,7 @@ class Audience
      */
     public function setCriteria(array $criteria): static
     {
-        $this->criteria = $criteria;
+        $this->criteria = array_map(fn($c) => $c->toArray(), $criteria);
 
         return $this;
     }
