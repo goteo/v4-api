@@ -3,10 +3,13 @@
 namespace App\Entity\Mail;
 
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Mail\BatchRecipientRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: BatchRecipientRepository::class)]
 class BatchRecipient
 {
