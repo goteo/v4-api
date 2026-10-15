@@ -52,9 +52,6 @@ class Broadcast
     #[ORM\OneToMany(targetEntity: Dispatch::class, mappedBy: 'broadcast')]
     private Collection $dispatchs;
 
-    #[ORM\ManyToOne]
-    private ?User $dispatchCursor = null;
-
     public function __construct()
     {
         $this->dispatchs = new ArrayCollection();
@@ -163,18 +160,6 @@ class Broadcast
                 $dispatch->setBroadcast(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getDispatchCursor(): ?User
-    {
-        return $this->dispatchCursor;
-    }
-
-    public function setDispatchCursor(?User $dispatchCursor): static
-    {
-        $this->dispatchCursor = $dispatchCursor;
 
         return $this;
     }
