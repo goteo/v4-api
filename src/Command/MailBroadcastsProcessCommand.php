@@ -14,6 +14,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 #[AsCommand(
     name: 'app:mail:broadcasts-process',
@@ -25,6 +27,7 @@ class MailBroadcastsProcessCommand extends Command
         private BroadcastRepository $broadcastRepository,
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
+        private LockFactory $lockFactory,
     ) {
         parent::__construct();
     }
@@ -54,13 +57,26 @@ class MailBroadcastsProcessCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $name = $this->getName();
+
+        $io->title(sprintf(
+            '%s @ %s',
+            $name,
+            (new \DateTime())->format(\DateTime::ISO8601_EXPANDED)
+        ));
+
+        $stopwatch = new Stopwatch();
+        $stopwatch->start($name);
+
+        $lock = $this->lockFactory->createLock($name);
+        $lock->acquire(true);
 
         $statuses = $this->getStatuses($input);
         $broadcasts = $this->broadcastRepository->findBy(['status' => $statuses]);
         foreach ($broadcasts as $broadcast) {
             $scheduledAt = $broadcast->getScheduledAt();
             if ($scheduledAt !== null && $scheduledAt > new \DateTimeImmutable()) {
-                $io->info(sprintf(
+                $io->text(sprintf(
                     'Broadcast %d is scheduled for %s. Skipping.',
                     $broadcast->getId(),
                     $scheduledAt->format(\DateTime::ISO8601_EXPANDED)
@@ -69,16 +85,13 @@ class MailBroadcastsProcessCommand extends Command
                 continue;
             }
 
-            $users = $this->userRepository->findByBroadcastPendings(
-                $broadcast,
-                $input->getOption('dispatch-limit')
-            );
+            $users = $this->userRepository->findByBroadcastPendings($broadcast, $input->getOption('dispatch-limit'));
 
             if ($users === []) {
                 $broadcast->setStatus(BroadcastStatus::Processed);
                 $this->entityManager->persist($broadcast);
 
-                $io->info(sprintf(
+                $io->text(sprintf(
                     'Broadcast %d is fully processed. Skipping.',
                     $broadcast->getId()
                 ));
@@ -104,7 +117,7 @@ class MailBroadcastsProcessCommand extends Command
             $this->entityManager->flush();
             $this->entityManager->clear();
 
-            $io->info(sprintf(
+            $io->text(sprintf(
                 'Broadcast %d: generated %d dispatches. Cursor advanced to user %d.',
                 $broadcast->getId(),
                 count($users),
@@ -112,10 +125,13 @@ class MailBroadcastsProcessCommand extends Command
             ));
         }
 
+        $lock->release();
+
         $io->success(sprintf(
             'Processed %d Broadcasts',
             count($broadcasts)
         ));
+        $io->write($stopwatch->stop($name));
 
         return Command::SUCCESS;
     }
