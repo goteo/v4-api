@@ -54,6 +54,7 @@ class OAuth2ConsentClientCommand extends Command
         $this->clientManager->save($client);
 
         $io->success('OAuth2 client updated successfully.');
+        $io->table(['Identifier', 'Is consented?'], [[$client->getIdentifier(), $client->isConsented()]]);
 
         return 0;
     }
