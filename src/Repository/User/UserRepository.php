@@ -3,8 +3,6 @@
 namespace App\Repository\User;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Mail\AudienceCriteriaOperator;
-use App\Entity\Mail\Broadcast;
 use App\Entity\User\User;
 use App\Repository\DedupedTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -103,42 +101,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('handle', \sprintf('%%%s%%', $handle))
             ->getQuery()
             ->getSingleScalarResult();
-    }
-
-    /**
-     * Finds the next batch of Users matching a Broadcast's Audience.
-     *
-     * @return User[]
-     */
-    public function findByBroadcastPendings(Broadcast $broadcast, int $limit = 1000): array
-    {
-        $qb = $this->createQueryBuilder('user');
-
-        foreach ($broadcast->getAudience()->getCriteria() as $criteria) {
-            $subject = $criteria->subject;
-            $referent = $criteria->referent;
-
-            $expr = match ($criteria->operator) {
-                AudienceCriteriaOperator::Equals => $qb->expr()->eq($subject, $referent),
-                AudienceCriteriaOperator::GreaterThan => $qb->expr()->gt($subject, $referent),
-                AudienceCriteriaOperator::GreaterThanOrEqual => $qb->expr()->gte($subject, $referent),
-                AudienceCriteriaOperator::LessThan => $qb->expr()->lt($subject, $referent),
-                AudienceCriteriaOperator::LessThanOrEqual => $qb->expr()->lte($subject, $referent),
-            };
-
-            $qb->andWhere($expr);
-        }
-
-        if ($broadcast->getDispatchCursor() !== null) {
-            $qb->andWhere('user.id > :afterId')
-                ->setParameter('afterId', $broadcast->getDispatchCursor()->getId());
-        }
-
-        return $qb
-            ->orderBy('user.id', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
     }
 
     //    /**

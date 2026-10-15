@@ -5,7 +5,6 @@ namespace App\Entity\Mail;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\LocalizedTrait;
-use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Mail\BroadcastRepository;
 use AutoMapper\Attribute\MapProvider;
