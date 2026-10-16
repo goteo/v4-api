@@ -5,6 +5,7 @@ namespace App\Entity\User;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Entity\Address;
+use App\Entity\Category;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
@@ -131,6 +132,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
     private Collection $addresses;
 
+    /**
+     * Has the User agreed to share their location with the platform for anonymous statistics?
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $shareLocation = false;
+
+    /**
+     * Should the User's supports be anonymous by default?
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $supportAnonymously = false;
+
+    /**
+     * How the User got to know about the platform.
+     */
+    #[ORM\Column(nullable: true, enumType: UserReferralSource::class)]
+    private ?UserReferralSource $referralSource = null;
+
+    /**
+     * Categories of the Projects the User is interested in.
+     *
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -141,6 +168,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->emailConfirmed = false;
         $this->active = false;
         $this->addresses = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -428,6 +456,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
                 $address->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isShareLocation(): bool
+    {
+        return $this->shareLocation;
+    }
+
+    public function setShareLocation(bool $shareLocation): static
+    {
+        $this->shareLocation = $shareLocation;
+
+        return $this;
+    }
+
+    public function isSupportAnonymously(): bool
+    {
+        return $this->supportAnonymously;
+    }
+
+    public function setSupportAnonymously(bool $supportAnonymously): static
+    {
+        $this->supportAnonymously = $supportAnonymously;
+
+        return $this;
+    }
+
+    public function getReferralSource(): ?UserReferralSource
+    {
+        return $this->referralSource;
+    }
+
+    public function setReferralSource(?UserReferralSource $referralSource): static
+    {
+        $this->referralSource = $referralSource;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
 
         return $this;
     }
