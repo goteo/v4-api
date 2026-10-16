@@ -5,6 +5,8 @@ namespace App\ApiResource\User;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\User\Person;
+use App\Entity\User\PersonGender;
+use App\Entity\User\TaxIdType;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -69,4 +71,29 @@ class PersonApiResource
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
     public string $lastName;
+
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?TaxIdType $taxIdType = null;
+
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    #[Assert\Range(min: 1900, max: 2100)]
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?int $birthYear = null;
+
+    /**
+     * Gender of the person.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?PersonGender $gender = null;
 }
