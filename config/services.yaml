@@ -104,10 +104,6 @@ services:
         arguments:
             - !tagged 'app.money.conversion.exchange'
 
-    App\Money\Totalization\TotalizerLocator:
-        arguments:
-            - !tagged 'app.money.totalization.totalizer'
-
     App\Mapping\AutoMapper:
         arguments:
             - '%kernel.cache_dir%'
