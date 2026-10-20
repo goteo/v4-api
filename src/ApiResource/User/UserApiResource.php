@@ -25,6 +25,7 @@ use App\State\ApiResourceStateProvider;
 use App\State\User\UserSignupProcessor;
 use App\State\User\UserStateProcessor;
 use App\State\User\UserStateProvider;
+use App\Validator\UserHandle;
 use AutoMapper\Attribute\MapFrom;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -75,8 +76,7 @@ class UserApiResource
      * A unique, non white space, byte-safe string identifier for this User.
      */
     #[Assert\NotBlank()]
-    #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[UserHandle]
     #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     #[API\ApiFilter(OrderFilter::class, properties: ['handle'])]
     public string $handle;

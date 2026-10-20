@@ -9,6 +9,7 @@ use App\Entity\User\User;
 use App\Entity\User\UserType;
 use App\Mapping\Transformer\RawLinksMapTransformer;
 use App\Validator\NotExisting;
+use App\Validator\UserHandle;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,8 +18,7 @@ final class UserUpdationDto
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
-    #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[UserHandle]
     #[NotExisting(User::class, 'handle')]
     public string $handle;
 
