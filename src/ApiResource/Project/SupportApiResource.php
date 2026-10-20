@@ -3,7 +3,6 @@
 namespace App\ApiResource\Project;
 
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
@@ -31,22 +30,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     stateOptions: new Options(entityClass: Support::class),
     provider: ApiResourceStateProvider::class,
 )]
-#[API\ApiFilter(SearchFilter::class, properties: [
-    'project.status' => 'exact',
-    'project.title' => 'partial',
-    'project.owner' => 'exact',
-    'project.accounting' => 'exact',
-    'project.categories' => 'exact',
-    'project.themes' => 'exact',
-    'project.territory.country' => 'exact',
-    'project.territory.subLvl1' => 'exact',
-    'project.territory.subLvl2' => 'exact',
-])]
-#[API\ApiFilter(DateFilter::class, properties: [
-    'project.calendar.release',
-    'project.calendar.minimum',
-    'project.calendar.optimum',
-])]
 #[API\GetCollection()]
 #[API\GetCollection(
     uriTemplate: '/project_supports/money_total',
