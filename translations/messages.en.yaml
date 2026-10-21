@@ -21,6 +21,14 @@ consent:
   consent: Yes, allow access
   submit: Continue
 
+password_reset:
+  request:
+    title: Reset your password
+    description:  Enter your email address, and we will send you a link to reset your password.
+    email:
+      placeholder: johndoe@example.com
+    submit: Send password reset email
+
 footer:
   legal:
     termsOfUse: Terms of use
