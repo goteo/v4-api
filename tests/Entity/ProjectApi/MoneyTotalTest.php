@@ -6,9 +6,7 @@ use App\Entity\Category;
 use App\Entity\EmbeddableMoney;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
-use App\Entity\Project\Support;
 use App\Factory\CategoryFactory;
-use App\Tests\Fixtures\TestUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,20 +19,16 @@ class MoneyTotalTest extends ProjectTestCase
         return 'GET';
     }
 
-    private function createProjectWithSupport(?int $amount, array $attributes = []): Project
+    private function createProjectWithBalance(?int $amount, array $attributes = []): Project
     {
         /** @var Project */
         $project = $this->createTestProjectOptimized(1, $attributes)[0]->_real();
 
-        $support = new Support();
-        $support->setProject($project);
-        $support->setOrigin(TestUser::get()->getAccounting());
         if ($amount !== null) {
-            $support->setMoney(new EmbeddableMoney($amount, 'EUR'));
+            $project->getAccounting()->setBalance(new EmbeddableMoney($amount, 'EUR'));
         }
 
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $entityManager->persist($support);
         $entityManager->flush();
 
         return $project;
@@ -49,9 +43,9 @@ class MoneyTotalTest extends ProjectTestCase
 
     public function testUnfilteredReturnsTotal(): void
     {
-        $this->createProjectWithSupport(1000);
-        $this->createProjectWithSupport(2500);
-        $this->createProjectWithSupport(null);
+        $this->createProjectWithBalance(1000);
+        $this->createProjectWithBalance(2500);
+        $this->createProjectWithBalance(null);
 
         $this->request($this->getMethod(), self::URI, [], Response::HTTP_OK);
 
@@ -60,8 +54,8 @@ class MoneyTotalTest extends ProjectTestCase
 
     public function testFilteredByStatus(): void
     {
-        $this->createProjectWithSupport(1000, ['status' => ProjectStatus::InCampaign]);
-        $this->createProjectWithSupport(2500, ['status' => ProjectStatus::InDraft]);
+        $this->createProjectWithBalance(1000, ['status' => ProjectStatus::InCampaign]);
+        $this->createProjectWithBalance(2500, ['status' => ProjectStatus::InDraft]);
 
         $this->request($this->getMethod(), self::URI, [
             'query' => ['status' => ProjectStatus::InCampaign->value],
@@ -76,7 +70,7 @@ class MoneyTotalTest extends ProjectTestCase
         $a = CategoryFactory::createOne(['name' => 'a'])->_real();
         /** @var Category */
         $b = CategoryFactory::createOne(['name' => 'b'])->_real();
-        $this->createProjectWithSupport(1000, ['categories' => [$a, $b]]);
+        $this->createProjectWithBalance(1000, ['categories' => [$a, $b]]);
 
         $this->request($this->getMethod(), self::URI, [
             'query' => ['categories' => [$a->getId(), $b->getId()]],
