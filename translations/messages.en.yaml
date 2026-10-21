@@ -28,6 +28,11 @@ password_reset:
     email:
       placeholder: johndoe@example.com
     submit: Send password reset email
+  email:
+    subject: Password reset request
+    description: A password reset has been requested for your account. If you do not recognize this activity please ignore this message.
+    beforeLink: Click (or copy-and-paste) the following link to reset your password.
+    timeToLive: This link will expire in %ttl%. 
 
 footer:
   legal:
