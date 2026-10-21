@@ -76,14 +76,6 @@ trait RedocExtensionsTrait
                     'AccountingTransaction',
                 ],
             ],
-            [
-                'name' => 'Mailing',
-                'tags' => [
-                    'MailAudience',
-                    'MailBroadcast',
-                    'MailDispatch',
-                ],
-            ],
         ];
 
         return [
