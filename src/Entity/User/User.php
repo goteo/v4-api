@@ -5,12 +5,14 @@ namespace App\Entity\User;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\AccountingOwnerInterface;
 use App\Entity\Address;
+use App\Entity\Category;
 use App\Entity\DateCreatedTrait;
 use App\Entity\DateUpdatedTrait;
 use App\Entity\DedupedTrait;
 use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
 use App\Entity\Territory;
+use App\Entity\Theme;
 use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
@@ -131,6 +133,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $addresses;
 
+    /**
+     * Has the User agreed to share their location with the platform for anonymous statistics?
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $shareLocation = false;
+
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isAnonymous = false;
+
+    /**
+     * How the User got to know about the platform.
+     */
+    #[ORM\Column(nullable: true, enumType: UserReferralSource::class)]
+    private ?UserReferralSource $referralSource = null;
+
+    /**
+     * The Categories the User is interested in.
+     *
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    private Collection $preferredCategories;
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var Collection<int, Theme>
+     */
+    #[ORM\ManyToMany(targetEntity: Theme::class)]
+    private Collection $preferredThemes;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
@@ -141,6 +177,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->emailConfirmed = false;
         $this->active = false;
         $this->addresses = new ArrayCollection();
+        $this->preferredCategories = new ArrayCollection();
+        $this->preferredThemes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -428,6 +466,90 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
                 $address->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isShareLocation(): bool
+    {
+        return $this->shareLocation;
+    }
+
+    public function setShareLocation(bool $shareLocation): static
+    {
+        $this->shareLocation = $shareLocation;
+
+        return $this;
+    }
+
+    public function isAnonymous(): bool
+    {
+        return $this->isAnonymous;
+    }
+
+    public function setIsAnonymous(bool $isAnonymous): static
+    {
+        $this->isAnonymous = $isAnonymous;
+
+        return $this;
+    }
+
+    public function getReferralSource(): ?UserReferralSource
+    {
+        return $this->referralSource;
+    }
+
+    public function setReferralSource(?UserReferralSource $referralSource): static
+    {
+        $this->referralSource = $referralSource;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getPreferredCategories(): Collection
+    {
+        return $this->preferredCategories;
+    }
+
+    public function addPreferredCategory(Category $category): static
+    {
+        if (!$this->preferredCategories->contains($category)) {
+            $this->preferredCategories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removePreferredCategory(Category $category): static
+    {
+        $this->preferredCategories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Theme>
+     */
+    public function getPreferredThemes(): Collection
+    {
+        return $this->preferredThemes;
+    }
+
+    public function addPreferredTheme(Theme $theme): static
+    {
+        if (!$this->preferredThemes->contains($theme)) {
+            $this->preferredThemes->add($theme);
+        }
+
+        return $this;
+    }
+
+    public function removePreferredTheme(Theme $theme): static
+    {
+        $this->preferredThemes->removeElement($theme);
 
         return $this;
     }

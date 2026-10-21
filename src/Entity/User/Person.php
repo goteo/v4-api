@@ -38,6 +38,21 @@ class Person
     private ?string $taxIdLookup = null;
 
     /**
+     * The kind of document the tax ID belongs to.
+     */
+    #[ORM\Column(nullable: true, enumType: TaxIdType::class)]
+    private ?TaxIdType $taxIdType = null;
+
+    /**
+     * Year of birth of the person.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?int $birthYear = null;
+
+    #[ORM\Column(nullable: true, enumType: PersonGender::class)]
+    private ?PersonGender $gender = null;
+
+    /**
      * First-part of the name of the person, usually the given name(s). e.g: John, Juan.
      */
     #[ORM\Column(length: 255, nullable: true)]
@@ -113,6 +128,42 @@ class Person
     public function setLastName(string $lastName): static
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getTaxIdType(): ?TaxIdType
+    {
+        return $this->taxIdType;
+    }
+
+    public function setTaxIdType(?TaxIdType $taxIdType): static
+    {
+        $this->taxIdType = $taxIdType;
+
+        return $this;
+    }
+
+    public function getBirthYear(): ?int
+    {
+        return $this->birthYear;
+    }
+
+    public function setBirthYear(?int $birthYear): static
+    {
+        $this->birthYear = $birthYear;
+
+        return $this;
+    }
+
+    public function getGender(): ?PersonGender
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?PersonGender $gender): static
+    {
+        $this->gender = $gender;
 
         return $this;
     }

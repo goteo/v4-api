@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\ThemeRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ThemeRepository::class)]
 class Theme
 {

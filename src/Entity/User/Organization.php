@@ -31,6 +31,24 @@ class Organization
     private ?string $taxIdLookup = null;
 
     /**
+     * The kind of document the tax ID belongs to.
+     */
+    #[ORM\Column(nullable: true, enumType: TaxIdType::class)]
+    private ?TaxIdType $taxIdType = null;
+
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    #[ORM\Column(nullable: true, enumType: OrganizationLegalForm::class)]
+    private ?OrganizationLegalForm $legalForm = null;
+
+    /**
+     * Is the organization a public entity?
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $publicEntity = false;
+
+    /**
      * Organization legal name before government,
      * as it appears on legal documents issued by or for this organization.
      */
@@ -107,6 +125,42 @@ class Organization
     public function setBusinessName(?string $businessName): static
     {
         $this->businessName = $businessName;
+
+        return $this;
+    }
+
+    public function getTaxIdType(): ?TaxIdType
+    {
+        return $this->taxIdType;
+    }
+
+    public function setTaxIdType(?TaxIdType $taxIdType): static
+    {
+        $this->taxIdType = $taxIdType;
+
+        return $this;
+    }
+
+    public function getLegalForm(): ?OrganizationLegalForm
+    {
+        return $this->legalForm;
+    }
+
+    public function setLegalForm(?OrganizationLegalForm $legalForm): static
+    {
+        $this->legalForm = $legalForm;
+
+        return $this;
+    }
+
+    public function isPublicEntity(): bool
+    {
+        return $this->publicEntity;
+    }
+
+    public function setPublicEntity(bool $publicEntity): static
+    {
+        $this->publicEntity = $publicEntity;
 
         return $this;
     }

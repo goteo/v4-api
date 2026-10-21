@@ -5,9 +5,12 @@ namespace App\ApiResource\User;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\User\Person;
+use App\Entity\User\PersonGender;
+use App\Entity\User\TaxIdType;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Most times a real person is behind a User account,
@@ -69,4 +72,40 @@ class PersonApiResource
         securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
     )]
     public string $lastName;
+
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?TaxIdType $taxIdType = null;
+
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    #[Assert\GreaterThanOrEqual(1900)]
+    #[Assert\Callback([self::class, 'validateBirthYear'])]
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?int $birthYear = null;
+
+    /**
+     * Gender of the person.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("PERSON_EDIT", previous_object)',
+    )]
+    public ?PersonGender $gender = null;
+
+    /**
+     * `Range` only resolves relative time strings (e.g. 'now') against DateTime values, not int years.
+     */
+    public static function validateBirthYear(?int $birthYear, ExecutionContextInterface $context): void
+    {
+        if ($birthYear !== null && $birthYear > (int) date('Y')) {
+            $context->buildViolation('The birth year cannot be in the future.')->addViolation();
+        }
+    }
 }

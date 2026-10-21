@@ -8,12 +8,15 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\CategoryApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\Dto\User\UserSignupDto;
 use App\Dto\User\UserUpdationDto;
 use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Entity\User\UserReferralSource;
 use App\Entity\User\UserType;
 use App\Filter\EncryptedSearchFilter;
 use App\Filter\InArrayFilter;
@@ -191,4 +194,42 @@ class UserApiResource
      * Free-form rich text description for the User.
      */
     public string $description;
+
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
+    public bool $shareLocation = false;
+
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?\
+     * Only available to themselves and platform administrators.
+     */
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
+    public bool $isAnonymous = false;
+
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
+    public ?UserReferralSource $referralSource = null;
+
+    /**
+     * The Categories the User is interested in.
+     *
+     * @var CategoryApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false)]
+    public array $preferredCategories = [];
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false)]
+    public array $preferredThemes = [];
 }

@@ -3,9 +3,13 @@
 namespace App\Dto\User;
 
 use ApiPlatform\Metadata as API;
+use App\ApiResource\CategoryApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\User\UserApiResource;
+use App\Dto\CategorizedInputDtoTrait;
 use App\Entity\Territory;
 use App\Entity\User\User;
+use App\Entity\User\UserReferralSource;
 use App\Entity\User\UserType;
 use App\Mapping\Transformer\RawLinksMapTransformer;
 use App\Validator\NotExisting;
@@ -15,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class UserUpdationDto
 {
+    use CategorizedInputDtoTrait;
+
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
@@ -75,4 +81,36 @@ final class UserUpdationDto
      * Free-form rich text description for the User.
      */
     public string $description;
+
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.
+     */
+    public bool $shareLocation;
+
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?
+     */
+    public bool $isAnonymous;
+
+    /**
+     * How the User got to know about the platform.
+     */
+    public ?UserReferralSource $referralSource;
+
+    /**
+     * The Categories the User is interested in.
+     *
+     * @var CategoryApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
+    public array $preferredCategories;
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false, openapiContext: self::THEMES_OPENAPI_CONTEXT)]
+    public array $preferredThemes;
 }

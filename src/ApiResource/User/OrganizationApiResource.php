@@ -5,6 +5,8 @@ namespace App\ApiResource\User;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\User\Organization;
+use App\Entity\User\OrganizationLegalForm;
+use App\Entity\User\TaxIdType;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -73,4 +75,28 @@ class OrganizationApiResource
         securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
     )]
     public string $businessName;
+
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
+    )]
+    public ?TaxIdType $taxIdType = null;
+
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
+    )]
+    public ?OrganizationLegalForm $legalForm = null;
+
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    #[API\ApiProperty(
+        securityPostDenormalize: 'is_granted("ORGANIZATION_EDIT", previous_object)',
+    )]
+    public bool $publicEntity = false;
 }
