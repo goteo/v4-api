@@ -5,14 +5,9 @@ namespace App\Entity\User;
 enum TaxIdType: string
 {
     /**
-     * Spanish tax identification number, for people (formerly DNI) and organizations (formerly CIF).
+     * National identity or tax identification document, for people and organizations.
      */
-    case Nif = 'nif';
-
-    /**
-     * Spanish foreigner identity number.
-     */
-    case Nie = 'nie';
+    case NationalId = 'national_id';
 
     case Passport = 'passport';
 

@@ -44,25 +44,16 @@ class Territory
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     public readonly ?string $address;
 
-    /**
-     * Postal code of the address.\
-     * e.g: 07012.
-     */
-    #[ORM\Column(type: Types::STRING, nullable: true)]
-    public readonly ?string $postalCode;
-
     public function __construct(
         ?string $country = null,
         ?string $subLvl1 = null,
         ?string $subLvl2 = null,
         ?string $address = null,
-        ?string $postalCode = null,
     ) {
         $this->country = $country ?? self::UNKNOWN_COUNTRY_CODE;
         $this->subLvl1 = $subLvl1 ?? null;
         $this->subLvl2 = $subLvl2 ?? null;
         $this->address = $address ?? null;
-        $this->postalCode = $postalCode ?? null;
     }
 
     public static function unknown(?string $address = null): Territory

@@ -9,6 +9,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\CategoryApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\Dto\User\UserSignupDto;
@@ -203,11 +204,11 @@ class UserApiResource
     public bool $shareLocation = false;
 
     /**
-     * Should the User's ProjectSupports be anonymous by default?\
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?\
      * Only available to themselves and platform administrators.
      */
     #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
-    public bool $supportAnonymously = false;
+    public bool $isAnonymous = false;
 
     /**
      * How the User got to know about the platform.\
@@ -217,10 +218,18 @@ class UserApiResource
     public ?UserReferralSource $referralSource = null;
 
     /**
-     * The Categories of the Projects the User is interested in.
+     * The Categories the User is interested in.
      *
      * @var CategoryApiResource[]
      */
     #[API\ApiProperty(writableLink: false)]
-    public array $categories = [];
+    public array $preferredCategories = [];
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false)]
+    public array $preferredThemes = [];
 }

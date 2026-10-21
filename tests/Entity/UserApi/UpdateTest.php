@@ -3,6 +3,7 @@
 namespace App\Tests\Entity\UserApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Theme;
 use App\Entity\User\UserType;
 use App\Factory\CategoryFactory;
 use App\Factory\User\UserFactory;
@@ -11,6 +12,8 @@ use App\Tests\Traits\RequestingTestTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
+
+use function Zenstruck\Foundry\Persistence\persist;
 
 class UpdateTest extends ApiTestCase
 {
@@ -22,28 +25,29 @@ class UpdateTest extends ApiTestCase
     {
         $user = TestUser::get();
         $category = CategoryFactory::createOne(['name' => 'test']);
+        $theme = persist(Theme::class, ['name' => 'test']);
         $uri = \sprintf('/v4/users/%d', $user->getId());
 
         $this->request('PATCH', $uri, [
             'headers' => $this->withAuthHeader($user),
             'json' => [
                 'shareLocation' => true,
-                'supportAnonymously' => true,
+                'isAnonymous' => true,
                 'referralSource' => 'social_media',
-                'categories' => [\sprintf('/v4/categories/%s', $category->getId())],
-                'territory' => ['country' => 'ES', 'postalCode' => '07012'],
+                'preferredCategories' => [\sprintf('/v4/categories/%s', $category->getId())],
+                'preferredThemes' => [\sprintf('/v4/themes/%s', $theme->getId())],
             ],
         ], Response::HTTP_OK);
 
         $this->assertJsonContains([
             'shareLocation' => true,
-            'supportAnonymously' => true,
+            'isAnonymous' => true,
             'referralSource' => 'social_media',
-            'territory' => ['country' => 'ES', 'postalCode' => '07012'],
         ]);
-        $this->assertCount(1, $this->request('GET', $uri, [
-            'headers' => $this->withAuthHeader($user),
-        ])->toArray()['categories']);
+
+        $data = $this->request('GET', $uri, ['headers' => $this->withAuthHeader($user)])->toArray();
+        $this->assertCount(1, $data['preferredCategories']);
+        $this->assertCount(1, $data['preferredThemes']);
     }
 
     public function testPrivateFieldsHiddenFromOthers(): void
@@ -56,7 +60,7 @@ class UpdateTest extends ApiTestCase
         ], Response::HTTP_OK)->toArray();
 
         $this->assertArrayNotHasKey('shareLocation', $data);
-        $this->assertArrayNotHasKey('supportAnonymously', $data);
+        $this->assertArrayNotHasKey('isAnonymous', $data);
         $this->assertArrayNotHasKey('referralSource', $data);
     }
 
@@ -67,14 +71,14 @@ class UpdateTest extends ApiTestCase
         $this->request('PATCH', \sprintf('/v4/users/%d/person', $user->getId()), [
             'headers' => $this->withAuthHeader($user),
             'json' => [
-                'taxIdType' => 'nie',
+                'taxIdType' => 'passport',
                 'birthYear' => 1990,
                 'gender' => 'non_binary',
             ],
         ], Response::HTTP_OK);
 
         $this->assertJsonContains([
-            'taxIdType' => 'nie',
+            'taxIdType' => 'passport',
             'birthYear' => 1990,
             'gender' => 'non_binary',
         ]);
@@ -87,6 +91,11 @@ class UpdateTest extends ApiTestCase
         $this->request('PATCH', \sprintf('/v4/users/%d/person', $user->getId()), [
             'headers' => $this->withAuthHeader($user),
             'json' => ['birthYear' => 1800],
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->request('PATCH', \sprintf('/v4/users/%d/person', $user->getId()), [
+            'headers' => $this->withAuthHeader($user),
+            'json' => ['birthYear' => (int) date('Y') + 1],
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
@@ -104,14 +113,14 @@ class UpdateTest extends ApiTestCase
             'json' => [
                 'taxId' => 'G12345678',
                 'legalName' => 'Test Association',
-                'taxIdType' => 'nif',
+                'taxIdType' => 'national_id',
                 'legalForm' => 'association',
                 'publicEntity' => true,
             ],
         ], Response::HTTP_OK);
 
         $this->assertJsonContains([
-            'taxIdType' => 'nif',
+            'taxIdType' => 'national_id',
             'legalForm' => 'association',
             'publicEntity' => true,
         ]);

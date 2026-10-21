@@ -4,6 +4,7 @@ namespace App\Dto\User;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Dto\CategorizedInputDtoTrait;
 use App\Entity\Territory;
@@ -88,9 +89,9 @@ final class UserUpdationDto
     public bool $shareLocation;
 
     /**
-     * Should the User's ProjectSupports be anonymous by default?
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?
      */
-    public bool $supportAnonymously;
+    public bool $isAnonymous;
 
     /**
      * How the User got to know about the platform.
@@ -98,10 +99,18 @@ final class UserUpdationDto
     public ?UserReferralSource $referralSource;
 
     /**
-     * The Categories of the Projects the User is interested in.
+     * The Categories the User is interested in.
      *
      * @var CategoryApiResource[]
      */
     #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
-    public array $categories;
+    public array $preferredCategories;
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[API\ApiProperty(writableLink: false, openapiContext: self::THEMES_OPENAPI_CONTEXT)]
+    public array $preferredThemes;
 }

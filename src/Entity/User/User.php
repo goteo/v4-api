@@ -12,6 +12,7 @@ use App\Entity\DedupedTrait;
 use App\Entity\MigratedTrait;
 use App\Entity\Project\Project;
 use App\Entity\Territory;
+use App\Entity\Theme;
 use App\Library\Link;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
@@ -139,10 +140,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private bool $shareLocation = false;
 
     /**
-     * Should the User's supports be anonymous by default?
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?
      */
     #[ORM\Column(options: ['default' => false])]
-    private bool $supportAnonymously = false;
+    private bool $isAnonymous = false;
 
     /**
      * How the User got to know about the platform.
@@ -151,12 +152,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?UserReferralSource $referralSource = null;
 
     /**
-     * Categories of the Projects the User is interested in.
+     * The Categories the User is interested in.
      *
      * @var Collection<int, Category>
      */
     #[ORM\ManyToMany(targetEntity: Category::class)]
-    private Collection $categories;
+    private Collection $preferredCategories;
+
+    /**
+     * The Themes the User is interested in.
+     *
+     * @var Collection<int, Theme>
+     */
+    #[ORM\ManyToMany(targetEntity: Theme::class)]
+    private Collection $preferredThemes;
 
     public function __construct()
     {
@@ -168,7 +177,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->emailConfirmed = false;
         $this->active = false;
         $this->addresses = new ArrayCollection();
-        $this->categories = new ArrayCollection();
+        $this->preferredCategories = new ArrayCollection();
+        $this->preferredThemes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -472,14 +482,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    public function isSupportAnonymously(): bool
+    public function isAnonymous(): bool
     {
-        return $this->supportAnonymously;
+        return $this->isAnonymous;
     }
 
-    public function setSupportAnonymously(bool $supportAnonymously): static
+    public function setIsAnonymous(bool $isAnonymous): static
     {
-        $this->supportAnonymously = $supportAnonymously;
+        $this->isAnonymous = $isAnonymous;
 
         return $this;
     }
@@ -499,23 +509,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     /**
      * @return Collection<int, Category>
      */
-    public function getCategories(): Collection
+    public function getPreferredCategories(): Collection
     {
-        return $this->categories;
+        return $this->preferredCategories;
     }
 
-    public function addCategory(Category $category): static
+    public function addPreferredCategory(Category $category): static
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
+        if (!$this->preferredCategories->contains($category)) {
+            $this->preferredCategories->add($category);
         }
 
         return $this;
     }
 
-    public function removeCategory(Category $category): static
+    public function removePreferredCategory(Category $category): static
     {
-        $this->categories->removeElement($category);
+        $this->preferredCategories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Theme>
+     */
+    public function getPreferredThemes(): Collection
+    {
+        return $this->preferredThemes;
+    }
+
+    public function addPreferredTheme(Theme $theme): static
+    {
+        if (!$this->preferredThemes->contains($theme)) {
+            $this->preferredThemes->add($theme);
+        }
+
+        return $this;
+    }
+
+    public function removePreferredTheme(Theme $theme): static
+    {
+        $this->preferredThemes->removeElement($theme);
 
         return $this;
     }
