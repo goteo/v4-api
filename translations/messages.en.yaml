@@ -47,6 +47,10 @@ password_reset:
     errorNoMatch: The password fields must match
     submit: Reset password
 
+clients:
+  title: Goteo sites
+  description: This site is an instance of <a class="text-primary" href="/v4">the Goteo v4 API</a>, these clients are connected to it.
+
 footer:
   legal:
     termsOfUse: Terms of use
