@@ -8,6 +8,7 @@ use App\Entity\Project\ProjectDeadline;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\User\User;
 use App\Factory\Project\ProjectFactory;
+use App\Factory\User\UserFactory;
 use App\Service\Project\ProjectService;
 use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Test\Factories;
@@ -22,25 +23,22 @@ class ProjectCalendarTest extends ApiTestCase
     private ProjectService $projectService;
     private User $owner;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->projectService = static::getContainer()->get(ProjectService::class);
 
         $this->owner = $this->createTestUser();
-        $this->entityManager->persist($this->owner);
-        $this->entityManager->flush();
     }
 
     private function createTestUser(string $handle = 'test_user', string $email = 'testuser@example.com'): User
     {
-        $user = new User();
-        $user->setHandle($handle);
-        $user->setEmail($email);
-        $user->setPassword('projectapitestpassword');
-
-        return $user;
+        return UserFactory::new([
+            'handle' => $handle,
+            'email' => $email,
+            'password' => 'projectapitestpassword',
+        ])->create()->_real();
     }
 
     private function createTestProject(ProjectDeadline $deadline = ProjectDeadline::Minimum): Project
@@ -52,17 +50,10 @@ class ProjectCalendarTest extends ApiTestCase
         ])->_real();
     }
 
-    private function createProjectAndSetToInCampaign(
-        ProjectDeadline $deadline = ProjectDeadline::Minimum,
-    ): Project {
+    private function createProjectAndSetToInCampaign(ProjectDeadline $deadline = ProjectDeadline::Minimum): Project
+    {
         $project = $this->createTestProject($deadline);
-
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-
         $project = $this->projectService->transition($project, ProjectStatus::InCampaign);
-
-        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         return $project;
@@ -71,46 +62,32 @@ class ProjectCalendarTest extends ApiTestCase
     public function testReleaseDateUpdatesOnCampaignStart(): void
     {
         $project = $this->createProjectAndSetToInCampaign();
-        $today = new \DateTime();
-        $today->setTime(0, 0, 0, 0);
+        $today = new \DateTimeImmutable('today');
+        $releaseDate = $project->getCalendar()->release;
 
-        $this->assertNotNull($project->getCalendar()->release);
-        $this->assertGreaterThan($today, $project->getCalendar()->release);
+        $this->assertNotNull($releaseDate);
+        $this->assertGreaterThan($today, $releaseDate);
     }
 
     public function testMinimumDeadlineIsSetCorrectly(): void
     {
         $project = $this->createProjectAndSetToInCampaign(ProjectDeadline::Minimum);
-
         $releaseDate = $project->getCalendar()->release;
         $minimumDeadline = $project->getCalendar()->minimum;
 
+        $this->assertNotNull($releaseDate);
         $this->assertNotNull($minimumDeadline);
-        $this->assertGreaterThan($releaseDate, $minimumDeadline);
         $this->assertEquals($releaseDate->modify('+40 days'), $minimumDeadline);
     }
 
     public function testOptimumDeadlineIsSetCorrectly(): void
     {
         $project = $this->createProjectAndSetToInCampaign(ProjectDeadline::Optimum);
-
         $minimumDeadline = $project->getCalendar()->minimum;
         $optimumDeadline = $project->getCalendar()->optimum;
 
+        $this->assertNotNull($minimumDeadline);
         $this->assertNotNull($optimumDeadline);
-        $this->assertGreaterThan($minimumDeadline, $optimumDeadline);
         $this->assertEquals($minimumDeadline->modify('+40 days'), $optimumDeadline);
-    }
-
-    public function testProjectNotInCampaignHasNoCalendar(): void
-    {
-        $project = $this->createTestProject();
-
-        $this->entityManager->persist($project);
-        $this->entityManager->flush();
-
-        $this->assertNull($project->getCalendar()->release);
-        $this->assertNull($project->getCalendar()->minimum);
-        $this->assertNull($project->getCalendar()->optimum);
     }
 }

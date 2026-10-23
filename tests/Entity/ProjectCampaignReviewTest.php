@@ -9,61 +9,41 @@ use App\Entity\Project\ProjectStatus;
 use App\Entity\Project\Review;
 use App\Entity\Project\ReviewType;
 use App\Entity\User\User;
-use App\Factory\Project\ProjectFactory;
 use App\Service\Project\ProjectService;
 use Doctrine\ORM\EntityManagerInterface;
-use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class ProjectCampaignReviewTest extends ApiTestCase
 {
     use ResetDatabase;
-    use Factories;
-
     private EntityManagerInterface $entityManager;
     private ProjectService $projectService;
     private User $owner;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->projectService = static::getContainer()->get(ProjectService::class);
-
-        $this->owner = $this->createTestUser();
+        $this->owner = new User();
+        $this->owner->setHandle('test_user');
+        $this->owner->setEmail('testuser@example.com');
+        $this->owner->setPassword('projectapitestpassword');
         $this->entityManager->persist($this->owner);
         $this->entityManager->flush();
     }
 
-    private function createTestUser(string $handle = 'test_user', string $email = 'testuser@example.com'): User
-    {
-        $user = new User();
-        $user->setHandle($handle);
-        $user->setEmail($email);
-        $user->setPassword('projectapitestpassword');
-
-        return $user;
-    }
-
-    private function createTestProject(ProjectDeadline $deadline = ProjectDeadline::Minimum): Project
-    {
-        return ProjectFactory::createOne([
-            'owner' => $this->owner,
-            'deadline' => $deadline,
-            'status' => ProjectStatus::InDraft,
-        ])->_real();
-    }
-
     private function createProjectAndSetToInCampaignReview(): Project
     {
-        $project = $this->createTestProject();
-
+        $project = new Project();
+        $project->setTitle('test project title');
+        $project->setSubtitle('test project subtitle');
+        $project->setOwner($this->owner);
+        $project->setStatus(ProjectStatus::InDraft);
+        $project->setDeadline(ProjectDeadline::Minimum);
         $this->entityManager->persist($project);
         $this->entityManager->flush();
-
         $project = $this->projectService->transition($project, ProjectStatus::ToCampaignReview);
-
-        $this->entityManager->persist($project);
         $this->entityManager->flush();
 
         return $project;
@@ -74,8 +54,7 @@ class ProjectCampaignReviewTest extends ApiTestCase
         $project = $this->createProjectAndSetToInCampaignReview();
         $reviews = $this->entityManager->getRepository(Review::class)->findBy(['project' => $project->getId()]);
 
-        $this->assertNotEmpty($reviews);
-        $this->assertEquals(1, \count($reviews));
-        $this->assertEquals(ReviewType::Campaign->value, $reviews[0]->getType()->value);
+        $this->assertCount(1, $reviews);
+        $this->assertSame(ReviewType::Campaign->value, $reviews[0]->getType()->value);
     }
 }

@@ -25,6 +25,6 @@ final class Version20260812124026 extends AbstractMigration
     {
         $this->addSql('ALTER TABLE user CHANGE territory_address territory_address VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE project CHANGE territory_address territory_address VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE ext_translations CHANGE foreign_key foreign_key INT NOT NULL');
+        $this->addSql('ALTER TABLE match_call CHANGE territory_address territory_address VARCHAR(255) DEFAULT NULL');
     }
 }

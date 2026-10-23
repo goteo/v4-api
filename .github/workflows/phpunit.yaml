@@ -41,6 +41,6 @@ jobs:
           php -r 'echo "PHP_VERSION=", PHP_VERSION, PHP_EOL;'
 
       - name: PHPUnit
-        run: php -d memory_limit=128M bin/phpunit -c phpunit.xml.dist
+        run: XDEBUG_MODE=off php -d memory_limit=128M bin/phpunit -c phpunit.xml.dist
         env:
           DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo

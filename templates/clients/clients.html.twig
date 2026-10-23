@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'clients.title' | trans }}
+{% endblock %}
+
+{% block body %}
+<div class="mx-auto max-w-360 px-10 mb-20">
+    <ul class="mx-auto max-w-122 flex flex-col gap-4">
+        <h1 class="text-black text-2xl font-bold">{{ 'clients.title' | trans }}</h1>
+        <p class="text-content">{{ 'clients.description' | trans | raw }}</p>
+        <div class="flex gap-6">
+            {% for client in oauth_clients %}
+                <li>
+                    <div class="bg-white border border-grey rounded-2xl p-4 shadow-sm">
+                        <a href="{{ client.baseUri }}">
+                            <img class="max-h-12 h-full" src="/oauth2/clients/{{ client.identifier }}.png" alt={{ client.name }}>
+                        </a>
+                    </div>
+                </li>
+            {% endfor %}
+        </div>
+    </ul>
+</div>
+{% endblock %}

@@ -21,6 +21,36 @@ consent:
   consent: Yes, allow access
   submit: Continue
 
+password_reset:
+  request:
+    title: Reset your password
+    description:  Enter your email address, and we will send you a link to reset your password.
+    email:
+      placeholder: johndoe@example.com
+    submit: Send password reset email
+  email:
+    subject: Password reset request
+    description: A password reset has been requested for your account. If you do not recognize this activity please ignore this message.
+    beforeLink: Click (or copy-and-paste) the following link to reset your password.
+    timeToLive: This link will expire in %ttl%.
+  check_email:
+    title: Password reset email sent
+    description: If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.
+    timeToLive: That link will expire in %ttl%.
+    checkSpam: If you don't see the email please check your spam folder and look for messages from %address%.
+  reset:
+    title: Reset your password
+    labelNew: New password
+    labelRepeat: Repeat new password
+    errorEmpty: Please enter a password
+    errorLength: Your password should be at least {{ limit }} characters
+    errorNoMatch: The password fields must match
+    submit: Reset password
+
+clients:
+  title: Goteo sites
+  description: This site is an instance of <a class="text-primary" href="/v4">the Goteo v4 API</a>, these clients are connected to it.
+
 footer:
   legal:
     termsOfUse: Terms of use

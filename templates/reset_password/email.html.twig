@@ -1,0 +1,8 @@
+<h1>{{ 'greeting' | trans({ '%name%': user.person.firstName }) }}</h1>
+
+<p>{{ 'password_reset.email.description' | trans }}</p>
+<p>{{ 'password_reset.email.beforeLink' | trans }}</p>
+
+<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
+
+<p>{{ 'password_reset.email.timeToLive' | trans({ '%ttl%': resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }) }}</p>
