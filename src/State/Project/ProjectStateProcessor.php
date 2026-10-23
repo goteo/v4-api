@@ -66,11 +66,13 @@ class ProjectStateProcessor implements ProcessorInterface
         $project->setOwner($owner);
 
         if (!isset($data->calendar->release)) {
-            $project->setCalendar($this->calendarService->makeCalendar(
-                $project->getDeadline(),
-                new \DateTimeImmutable('+28 days')
-            ));
+            $data->calendar->release = new \DateTimeImmutable('+28 days');
         }
+
+        $project->setCalendar($this->calendarService->makeCalendar(
+            $project->getDeadline(),
+            $data->calendar->release,
+        ));
 
         return $project;
     }
