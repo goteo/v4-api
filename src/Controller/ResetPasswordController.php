@@ -72,6 +72,7 @@ class ResetPasswordController extends AbstractController
 
         return $this->render('reset_password/check_email.html.twig', [
             'resetToken' => $resetToken,
+            'mailerAddress' => $this->mailerAddress
         ]);
     }
 
@@ -168,8 +169,7 @@ class ResetPasswordController extends AbstractController
             ->context([
                 'user' => $user,
                 'resetToken' => $resetToken,
-            ])
-        ;
+            ]);
 
         $mailer->send($email);
 
