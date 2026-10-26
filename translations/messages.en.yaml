@@ -10,6 +10,7 @@ login:
   password:
     label: Password
     placeholder: TrustNo1
+    forgotten: Did you forget your password?
   rememberme: Remember me
   submit: Sign in
   oauth: 'You can also login via:'
