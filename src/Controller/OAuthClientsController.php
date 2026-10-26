@@ -48,6 +48,10 @@ final class OAuthClientsController extends AbstractController
 
     private function getBaseUri(string|array $url): string
     {
+        if (empty($url)) {
+            return '';
+        }
+
         if (is_array($url)) {
             $url = $url[0];
         }

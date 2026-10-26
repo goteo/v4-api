@@ -50,7 +50,8 @@ password_reset:
 
 clients:
   title: Goteo sites
-  description: This site is an instance of <a class="text-primary" href="/v4">the Goteo v4 API</a>, these clients are connected to it.
+  description: This site is an instance of <a class="text-secondary" href="/v4">the Goteo v4 API</a>, these clients are connected to it.
+  noClients: No active clients registered
 
 footer:
   legal:
