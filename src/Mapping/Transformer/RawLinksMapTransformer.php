@@ -3,45 +3,22 @@
 namespace App\Mapping\Transformer;
 
 use App\Library\Link;
-use App\Service\Scout\ScoutResult;
-use App\Service\Scout\ScoutService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
 class RawLinksMapTransformer implements PropertyTransformerInterface
 {
-    public function __construct(
-        private ScoutService $scoutService,
-    ) {}
-
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
         $links = [];
         foreach ($value as $rawLink) {
-            $info = $this->scoutService->get($rawLink);
-
+            // Links are not crawled: sites behind a login wall redirect crawlers to their login page
             $link = new Link();
-            $link->url = $info->getUri();
-            $link->rel = $this->getRel($info);
+            $link->url = $rawLink;
+            $link->rel = 'external';
 
             $links[] = $link;
         }
 
         return $links;
-    }
-
-    private function getRel(ScoutResult $info): ?string
-    {
-        $nodes = (new \DOMXPath($info->getDocument()->getDocument()))->query('//a[@rel]');
-
-        if ($nodes->length === 0) {
-            return null;
-        }
-
-        $anchor = $nodes->item(0);
-        if (!$anchor instanceof \DOMElement) {
-            return null;
-        }
-
-        return $anchor->getAttribute('rel');
     }
 }
