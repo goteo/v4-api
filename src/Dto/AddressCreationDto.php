@@ -60,4 +60,10 @@ class AddressCreationDto
     #[Assert\NotBlank()]
     #[Assert\Country()]
     public string $country;
+
+    /**
+     * Whether this is the User's default Address.
+     * Setting it to `true` unsets it on the rest of the User's Addresses.
+     */
+    public ?bool $isDefault = null;
 }

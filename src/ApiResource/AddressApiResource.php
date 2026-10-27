@@ -27,12 +27,12 @@ use App\State\ApiResourceStateProvider;
     input: AddressCreationDto::class,
     securityPostDenormalize: 'is_granted("USER_EDIT", object.user)'
 )]
-#[API\Get]
+#[API\Get(security: 'is_granted("ADDRESS_VIEW", object)')]
 #[API\Patch(
     input: AddressUpdationDto::class,
     securityPostDenormalize: 'is_granted("ADDRESS_EDIT", previous_object)'
 )]
-#[API\Delete()]
+#[API\Delete(security: 'is_granted("ADDRESS_EDIT", object)')]
 class AddressApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
@@ -87,4 +87,11 @@ class AddressApiResource
     #[API\ApiProperty(security: 'is_granted("ADDRESS_VIEW", object)')]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public string $country;
+
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    #[API\ApiProperty(security: 'is_granted("ADDRESS_VIEW", object)')]
+    public bool $isDefault = false;
 }
