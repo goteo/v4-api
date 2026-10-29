@@ -5,6 +5,7 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\PropertyInfo\Type;
@@ -16,10 +17,17 @@ use Symfony\Component\PropertyInfo\Type;
  * ```
  * #[ApiFilter(QFilter::class, properties: ['q' => ['foo', 'bar.baz']])]
  * ```
- * To enable queries like `?q=quux` that transform into SQL like `WHERE (foo LIKE %quux% OR bar.baz LIKE %quux%)`
+ * To enable queries like `?q=quux` that transform into SQL like `WHERE (foo LIKE %quux% OR id IN (SELECT ... FROM bar WHERE baz LIKE %quux%))`
+ *
+ * A field can be guarded with a security expression, it is only searched when the expression is granted:
+ * ```
+ * #[ApiFilter(QFilter::class, properties: ['q' => ['foo' => 'is_granted("ROLE_ADMIN")', 'bar.baz']])]
+ * ```
  */
 final class QFilter extends AbstractFilter
 {
+    use SecuredFilterTrait;
+
     public const PARAMETER = 'q';
 
     protected function filterProperty(
@@ -38,30 +46,58 @@ final class QFilter extends AbstractFilter
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $parameter = $queryNameGenerator->generateParameterName(self::PARAMETER);
         $expr = $queryBuilder->expr();
+        $metadata = $this->getClassMetadata($resourceClass);
 
         $or = $expr->orX();
-        foreach ($this->properties[self::PARAMETER] as $field) {
-            if (
-                !$this->isPropertyMapped($field, $resourceClass)
-                && !$this->isPropertyNested($field, $resourceClass)
-            ) {
+        $subqueryFields = [];
+        foreach ($this->getFields() as $field => $security) {
+            if (!$this->isFilteringGranted($security)) {
                 continue;
             }
 
-            $alias = $rootAlias;
-            $fieldName = $field;
-
-            if ($this->isPropertyNested($field, $resourceClass)) {
-                [$alias, $fieldName] = $this->addJoinsForNestedProperty(
-                    $field,
-                    $rootAlias,
-                    $queryBuilder,
-                    $queryNameGenerator,
-                    $resourceClass,
-                    Join::LEFT_JOIN
-                );
+            if (!$this->isPropertyNested($field, $resourceClass)) {
+                if ($this->isPropertyMapped($field, $resourceClass)) {
+                    $or->add($expr->like(\sprintf('%s.%s', $rootAlias, $field), ':'.$parameter));
+                }
+                continue;
             }
-            $or->add($expr->like(sprintf('%s.%s', $alias, $fieldName), ':'.$parameter));
+
+            [$association, $fieldName] = \explode('.', $field, 2);
+            if (!\str_contains($fieldName, '.') && $this->isSubqueryable($metadata, $association)) {
+                $subqueryFields[$association][] = $fieldName;
+                continue;
+            }
+
+            // ponytail: deeper paths or owning-side associations keep the slow LEFT JOIN, add a subquery shape when needed
+            [$alias, $fieldName] = $this->addJoinsForNestedProperty(
+                $field,
+                $rootAlias,
+                $queryBuilder,
+                $queryNameGenerator,
+                $resourceClass,
+                Join::LEFT_JOIN
+            );
+            $or->add($expr->like(\sprintf('%s.%s', $alias, $fieldName), ':'.$parameter));
+        }
+
+        // `root.id IN (SELECT IDENTITY(a.root) FROM Assoc a WHERE ...)` lets the database scan each table once,
+        // instead of LIKE-ing across LEFT JOINs which forces a full joined scan (and a doubled one when paginating)
+        foreach ($subqueryFields as $association => $fields) {
+            $alias = $queryNameGenerator->generateJoinAlias($association);
+            $subOr = $expr->orX();
+            foreach ($fields as $fieldName) {
+                $subOr->add($expr->like(\sprintf('%s.%s', $alias, $fieldName), ':'.$parameter));
+            }
+
+            $subquery = $queryBuilder->getEntityManager()->createQueryBuilder()
+                ->select(\sprintf('IDENTITY(%s.%s)', $alias, $metadata->getAssociationMappedByTargetField($association)))
+                ->from($metadata->getAssociationTargetClass($association), $alias)
+                ->where($subOr);
+
+            $or->add($expr->in(
+                \sprintf('%s.%s', $rootAlias, $metadata->getSingleIdentifierFieldName()),
+                $subquery->getDQL()
+            ));
         }
 
         if ($or->count() === 0) {
@@ -71,6 +107,36 @@ final class QFilter extends AbstractFilter
         $queryBuilder
             ->andWhere($or)
             ->setParameter($parameter, "%{$value}%");
+    }
+
+    /**
+     * Inverse-side associations whose owning side is a to-one can be resolved with a subquery on the owning table.
+     */
+    private function isSubqueryable(ClassMetadata $metadata, string $association): bool
+    {
+        if (!$metadata->hasAssociation($association) || $metadata->getAssociationMapping($association)->isOwningSide()) {
+            return false;
+        }
+
+        return $this->getClassMetadata($metadata->getAssociationTargetClass($association))
+            ->isSingleValuedAssociation($metadata->getAssociationMappedByTargetField($association));
+    }
+
+    /**
+     * @return array<string, ?string> The searchable fields and the security expression guarding each one
+     */
+    private function getFields(): array
+    {
+        $fields = [];
+        foreach ($this->properties[self::PARAMETER] as $key => $value) {
+            if (\is_int($key)) {
+                $fields[$value] = null;
+            } else {
+                $fields[$key] = $value;
+            }
+        }
+
+        return $fields;
     }
 
     public function getDescription(string $resourceClass): array
@@ -85,8 +151,9 @@ final class QFilter extends AbstractFilter
             'description' => \sprintf(
                 'Searches on %s',
                 join(', ', array_map(
-                    static fn($p) => "`$p`",
-                    $this->properties[self::PARAMETER]
+                    static fn($p, $security) => $security === null ? "`$p`" : "`$p` (secured by `$security`)",
+                    array_keys($this->getFields()),
+                    $this->getFields()
                 ))
             ),
         ];
