@@ -39,4 +39,23 @@ class SearchTest extends ApiTestCase
         $this->assertSame(['by_email', 'by_organization', 'by_person'], $handles);
         $this->assertSame(3, $data['totalItems']);
     }
+
+    public function testEmailFilterMatchesByPrefix(): void
+    {
+        UserFactory::createOne(['handle' => 'quixote', 'email' => 'quixote@example.com']);
+        $admin = UserFactory::createOne(['handle' => 'admin', 'email' => 'admin@example.com', 'roles' => ['ROLE_ADMIN']]);
+        $options = ['headers' => $this->withAuthHeader($admin)];
+
+        $data = $this->request('GET', '/v4/users?email=QUIX', $options, Response::HTTP_OK)->toArray();
+        $this->assertSame(['quixote'], array_column($data['member'], 'handle'));
+
+        $data = $this->request('GET', '/v4/users?email=example.com', $options, Response::HTTP_OK)->toArray();
+        $this->assertSame(0, $data['totalItems']);
+    }
+
+    public function testEmailFilterIsAdminOnly(): void
+    {
+        $this->request('GET', '/v4/users?email=quix', [], Response::HTTP_FORBIDDEN);
+        $this->request('GET', '/v4/users?email[]=quix', [], Response::HTTP_FORBIDDEN);
+    }
 }
