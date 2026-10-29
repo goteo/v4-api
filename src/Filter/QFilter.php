@@ -18,9 +18,16 @@ use Symfony\Component\PropertyInfo\Type;
  * #[ApiFilter(QFilter::class, properties: ['q' => ['foo', 'bar.baz']])]
  * ```
  * To enable queries like `?q=quux` that transform into SQL like `WHERE (foo LIKE %quux% OR id IN (SELECT ... FROM bar WHERE baz LIKE %quux%))`
+ *
+ * A field can be guarded with a security expression, it is only searched when the expression is granted:
+ * ```
+ * #[ApiFilter(QFilter::class, properties: ['q' => ['foo' => 'is_granted("ROLE_ADMIN")', 'bar.baz']])]
+ * ```
  */
 final class QFilter extends AbstractFilter
 {
+    use SecuredFilterTrait;
+
     public const PARAMETER = 'q';
 
     protected function filterProperty(
@@ -43,7 +50,11 @@ final class QFilter extends AbstractFilter
 
         $or = $expr->orX();
         $subqueryFields = [];
-        foreach ($this->properties[self::PARAMETER] as $field) {
+        foreach ($this->getFields() as $field => $security) {
+            if (!$this->isFilteringGranted($security)) {
+                continue;
+            }
+
             if (!$this->isPropertyNested($field, $resourceClass)) {
                 if ($this->isPropertyMapped($field, $resourceClass)) {
                     $or->add($expr->like(\sprintf('%s.%s', $rootAlias, $field), ':'.$parameter));
@@ -111,6 +122,23 @@ final class QFilter extends AbstractFilter
             ->isSingleValuedAssociation($metadata->getAssociationMappedByTargetField($association));
     }
 
+    /**
+     * @return array<string, ?string> The searchable fields and the security expression guarding each one
+     */
+    private function getFields(): array
+    {
+        $fields = [];
+        foreach ($this->properties[self::PARAMETER] as $key => $value) {
+            if (\is_int($key)) {
+                $fields[$value] = null;
+            } else {
+                $fields[$key] = $value;
+            }
+        }
+
+        return $fields;
+    }
+
     public function getDescription(string $resourceClass): array
     {
         $description = [];
@@ -123,8 +151,9 @@ final class QFilter extends AbstractFilter
             'description' => \sprintf(
                 'Searches on %s',
                 join(', ', array_map(
-                    static fn($p) => "`$p`",
-                    $this->properties[self::PARAMETER]
+                    static fn($p, $security) => $security === null ? "`$p`" : "`$p` (secured by `$security`)",
+                    array_keys($this->getFields()),
+                    $this->getFields()
                 ))
             ),
         ];

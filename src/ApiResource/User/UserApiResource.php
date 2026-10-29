@@ -62,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(securityPostDenormalize: 'is_granted("ROLE_ADMIN", previous_object)')]
 #[API\ApiFilter(QFilter::class, properties: [
     'q' => [
-        'email',
+        'email' => 'is_granted("ROLE_ADMIN")',
         'person.firstName',
         'person.lastName',
         'organization.legalName',
