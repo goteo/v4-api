@@ -42,7 +42,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
     processor: UserStateProcessor::class,
 )]
-#[API\GetCollection()]
+#[API\GetCollection(parameters: [
+    'email' => new API\QueryParameter(security: 'is_granted("ROLE_ADMIN")'),
+])]
 #[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
 #[API\Get(
     provider: UserStateProvider::class,
@@ -60,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(securityPostDenormalize: 'is_granted("ROLE_ADMIN", previous_object)')]
 #[API\ApiFilter(QFilter::class, properties: [
     'q' => [
-        'email',
+        'email' => 'is_granted("ROLE_ADMIN")',
         'person.firstName',
         'person.lastName',
         'organization.legalName',
@@ -89,7 +91,7 @@ class UserApiResource
      */
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[API\ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[API\ApiFilter(SearchFilter::class, strategy: 'start')]
     #[API\ApiProperty(security: 'is_granted("USER_EDIT", object)')]
     public string $email;
 
