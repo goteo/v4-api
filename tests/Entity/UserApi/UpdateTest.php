@@ -17,8 +17,8 @@ use function Zenstruck\Foundry\Persistence\persist;
 
 class UpdateTest extends ApiTestCase
 {
-    use ResetDatabase;
     use Factories;
+    use ResetDatabase;
     use RequestingTestTrait;
 
     public function testUpdateProfileFields(): void
