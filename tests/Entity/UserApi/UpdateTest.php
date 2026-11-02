@@ -21,6 +21,11 @@ class UpdateTest extends ApiTestCase
     use Factories;
     use RequestingTestTrait;
 
+    public function setUp(): void
+    {
+        self::bootKernel();
+    }
+
     public function testUpdateProfileFields(): void
     {
         $user = TestUser::get();
@@ -48,6 +53,48 @@ class UpdateTest extends ApiTestCase
         $data = $this->request('GET', $uri, ['headers' => $this->withAuthHeader($user)])->toArray();
         $this->assertCount(1, $data['preferredCategories']);
         $this->assertCount(1, $data['preferredThemes']);
+    }
+
+    public function testUpdateLinksKeepsGivenUrl(): void
+    {
+        $user = TestUser::get();
+
+        // http://github.com redirects to https://github.com/
+        $this->request('PATCH', \sprintf('/v4/users/%d', $user->getId()), [
+            'headers' => $this->withAuthHeader($user),
+            'json' => ['links' => ['http://github.com']],
+        ], Response::HTTP_OK);
+
+        $this->assertJsonContains(['links' => [['url' => 'http://github.com']]]);
+    }
+
+    public function testUpdateWithoutLinksKeepsLinks(): void
+    {
+        $user = TestUser::get();
+        $uri = \sprintf('/v4/users/%d', $user->getId());
+
+        $this->request('PATCH', $uri, [
+            'headers' => $this->withAuthHeader($user),
+            'json' => ['links' => ['https://github.com']],
+        ], Response::HTTP_OK);
+
+        $this->request('PATCH', $uri, [
+            'headers' => $this->withAuthHeader($user),
+            'json' => ['description' => 'test'],
+        ], Response::HTTP_OK);
+
+        $data = $this->request('GET', $uri, ['headers' => $this->withAuthHeader($user)])->toArray();
+        $this->assertCount(1, $data['links']);
+    }
+
+    public function testUpdateInvalidLinks(): void
+    {
+        $user = TestUser::get();
+
+        $this->request('PATCH', \sprintf('/v4/users/%d', $user->getId()), [
+            'headers' => $this->withAuthHeader($user),
+            'json' => ['links' => ['not a url']],
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testPrivateFieldsHiddenFromOthers(): void

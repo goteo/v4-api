@@ -26,7 +26,7 @@ class ScoutService
         $this->embed = $embed;
     }
 
-    private function normalizeUrl(string $url): string
+    public function normalizeUrl(string $url): string
     {
         $nurl = $url;
 
