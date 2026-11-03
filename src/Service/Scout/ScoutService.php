@@ -26,6 +26,13 @@ class ScoutService
         $this->embed = $embed;
     }
 
+    /**
+     * Adds scheme to strings without one.
+     *
+     * @param string $url A URL-like string
+     *
+     * @return string The input URL with an https scheme
+     */
     public function normalizeUrl(string $url): string
     {
         $nurl = $url;
