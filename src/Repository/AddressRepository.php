@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Address;
+use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,26 @@ class AddressRepository extends ServiceEntityRepository
         parent::__construct($registry, Address::class);
     }
 
-    //    /**
-    //     * @return Address[] Returns an array of Address objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Unsets the default flag on every Address of the given User except the given one.
+     */
+    public function unsetDefaultsOfUser(User $user, ?Address $except): void
+    {
+        $query = $this->createQueryBuilder('a')
+            ->update()
+            ->set('a.isDefault', ':false')
+            ->where('a.user = :user')
+            ->setParameter('false', false)
+            ->setParameter('user', $user)
+        ;
 
-    //    public function findOneBySomeField($value): ?Address
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($except?->getId() !== null) {
+            $query
+                ->andWhere('a.id != :except')
+                ->setParameter('except', $except->getId())
+            ;
+        }
+
+        $query->getQuery()->execute();
+    }
 }
