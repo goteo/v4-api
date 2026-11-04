@@ -10,16 +10,20 @@ use App\Dto\AddressCreationDto;
 use App\Dto\AddressUpdationDto;
 use App\Entity\Address;
 use App\Mapping\AutoMapper;
+use App\Repository\AddressRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AddressStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private AutoMapper $autoMapper,
         private EntityStateProcessor $entityStateProcessor,
+        private AddressRepository $addressRepository,
+        private EntityManagerInterface $entityManager,
     ) {}
 
     /**
-     * @param AddressCreationDto|AddressUpdationDto $data
+     * @param AddressCreationDto|AddressUpdationDto|AddressApiResource $data
      *
      * @return AddressApiResource
      */
@@ -28,10 +32,17 @@ class AddressStateProcessor implements ProcessorInterface
         $address = match ($data::class) {
             AddressCreationDto::class => $this->getAddressFromCreation($data),
             AddressUpdationDto::class => $this->getAddressFromUpdate($data, $context),
+            AddressApiResource::class => $this->autoMapper->map($data, Address::class),
             default => throw new \InvalidArgumentException('Unsupported input for Address resource'),
         };
 
-        $address = $this->entityStateProcessor->process($address, $operation, $uriVariables, $context);
+        $address = $this->entityManager->wrapInTransaction(function () use ($address, $operation, $uriVariables, $context) {
+            if ($address->isDefault()) {
+                $this->addressRepository->unsetDefaultsOfUser($address->getUser(), $address);
+            }
+
+            return $this->entityStateProcessor->process($address, $operation, $uriVariables, $context);
+        });
 
         if ($operation instanceof DeleteOperationInterface) {
             return;
