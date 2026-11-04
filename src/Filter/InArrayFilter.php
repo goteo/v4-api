@@ -116,7 +116,7 @@ final class InArrayFilter extends AbstractFilter
 
             $description[$property.'[]'] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_ARRAY,
+                'type' => Type::BUILTIN_TYPE_STRING,
                 'required' => false,
                 'is_collection' => true,
             ];
