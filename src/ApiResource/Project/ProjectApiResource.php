@@ -51,17 +51,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         summary: 'Get money total',
         description: 'Returns a single TotalizedMoney object with the money raised by the ProjectSupports of the Projects matching the same filters as the Projects collection.',
         responses: [
-            '200' => [
-                'description' => 'Totalized money',
-                'content' => [
+            '200' => new \ApiPlatform\Openapi\Model\Response(
+                description: 'Totalized money',
+                content: new \ArrayObject([
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/Project.TotalizedMoney',
                         ],
                     ],
-                ],
-            ],
-        ]
+                ]),
+            ),
+        ],
     )
 )]
 #[API\Post(
