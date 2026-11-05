@@ -69,7 +69,7 @@ final class UserUpdationDto
      */
     #[MapTo(User::class, transformer: RawLinksMapTransformer::class)]
     #[MapTo(UserApiResource::class, transformer: RawLinksMapTransformer::class)]
-    public array $links = [];
+    public array $links;
 
     /**
      * ISO 3166 data about the Users's location territory.
