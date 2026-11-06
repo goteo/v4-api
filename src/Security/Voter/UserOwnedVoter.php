@@ -32,6 +32,6 @@ class UserOwnedVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-        return $this->isOwnerOf($subject, $token->getUser());
+        return $subject !== null && $this->isOwnerOf($subject, $token->getUser());
     }
 }

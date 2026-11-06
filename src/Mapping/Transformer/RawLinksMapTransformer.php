@@ -2,10 +2,16 @@
 
 namespace App\Mapping\Transformer;
 
+use ApiPlatform\Validator\Exception\ValidationException;
 use App\Library\Link;
+use App\Service\Scout\InvalidUriException;
+use App\Service\Scout\NonCrawlableUriException;
 use App\Service\Scout\ScoutResult;
 use App\Service\Scout\ScoutService;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
+use Psr\Http\Client\ClientExceptionInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class RawLinksMapTransformer implements PropertyTransformerInterface
 {
@@ -16,12 +22,20 @@ class RawLinksMapTransformer implements PropertyTransformerInterface
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
         $links = [];
-        foreach ($value as $rawLink) {
-            $info = $this->scoutService->get($rawLink);
-
+        foreach ($value as $i => $rawLink) {
             $link = new Link();
-            $link->url = $info->getUri();
-            $link->rel = $this->getRel($info);
+            // Scouting follows redirects (e.g. Facebook to its login page), keep the URL as given
+            $link->url = $this->scoutService->normalizeUrl($rawLink);
+            $link->rel = null;
+
+            try {
+                $link->rel = $this->getRel($this->scoutService->get($rawLink));
+            } catch (NonCrawlableUriException) {
+            } catch (InvalidUriException|ClientExceptionInterface) {
+                throw new ValidationException(new ConstraintViolationList([
+                    new ConstraintViolation('Invalid or unreachable URL', null, [], null, \sprintf('links[%d]', $i), $rawLink),
+                ]));
+            }
 
             $links[] = $link;
         }

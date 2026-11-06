@@ -31,7 +31,7 @@ class OAuth2ConsentClientCommand extends Command
         $this
             ->setDescription('Consents an OAuth2 client, allowing it to skip the consent screen')
 
-            ->addOption('consent', null, InputOption::VALUE_NEGATABLE, 'Consent the client')
+            ->addOption('consent', null, InputOption::VALUE_NEGATABLE, 'Consent the client', true)
 
             ->addArgument('identifier', InputArgument::REQUIRED, 'The client identifier')
         ;
@@ -54,6 +54,7 @@ class OAuth2ConsentClientCommand extends Command
         $this->clientManager->save($client);
 
         $io->success('OAuth2 client updated successfully.');
+        $io->table(['Identifier', 'Is consented?'], [[$client->getIdentifier(), $client->isConsented()]]);
 
         return 0;
     }

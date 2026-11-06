@@ -4,6 +4,7 @@ namespace App\Dto;
 
 use ApiPlatform\Metadata as API;
 use App\ApiResource\CategoryApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectCalendar;
 use App\Entity\Project\ProjectStatus;
@@ -13,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ProjectCreationDto
 {
-    use CategoryInputDtoTrait;
+    use CategorizedInputDtoTrait;
 
     /**
      * Main headline for the Project. Must include at least one character between a-Z.
@@ -39,6 +40,15 @@ class ProjectCreationDto
     #[Assert\Count(min: 1, max: 2)]
     #[API\ApiProperty(writableLink: false, openapiContext: self::CATEGORIES_OPENAPI_CONTEXT)]
     public array $categories;
+
+    /**
+     * List of Themes.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[Assert\Count(max: 1)]
+    #[API\ApiProperty(writableLink: false, openapiContext: self::THEMES_OPENAPI_CONTEXT)]
+    public array $themes;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

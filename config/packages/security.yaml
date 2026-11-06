@@ -13,7 +13,7 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User\User
-                property: handle
+                property: id
         login_user_provider:
             id: App\Security\LoginUserProvider
     firewalls:

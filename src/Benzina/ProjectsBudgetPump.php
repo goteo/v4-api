@@ -9,14 +9,13 @@ use App\Entity\Project\Project;
 use App\Entity\Project\ProjectDeadline;
 use App\Repository\Project\ProjectRepository;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
-use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
 class ProjectsBudgetPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DatabasePumpTrait;
-    use DoctrinePumpTrait;
+    use DoctrineLoggablePumpTrait;
     use LocalizedPumpTrait;
 
     private const MAX_INT = 2147483647;

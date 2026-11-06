@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'password_reset.request.title' | trans }}
+{% endblock %}
+
+{% block body %}
+    <div class="mx-auto max-w-360 px-10 mb-20">
+        <div class="mx-auto max-w-122 flex flex-col gap-6">
+
+            {% for flash_error in app.flashes('reset_password_error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ flash_error }}
+                </div>
+            {% endfor %}
+
+            <h1 class="text-2xl font-bold tracking-[0%] text-black mb-8 md:text-3xl md:leading-tight lg:text-[40px] lg:leading-12">
+                {{ 'password_reset.request.title' | trans }}
+            </h1>
+
+            {{ form_start(requestForm, {
+                attr: {
+                    class: 'flex flex-col gap-6'
+                }
+            }) }}
+
+                <div class="relative">
+                    {{ form_label(requestForm.email, null, {
+                        label_attr: {
+                            class: 'absolute -top-2 left-4 -translate-y-1/2 transform text-sm font-medium text-gray-500 transition-all'
+                        }
+                    }) }}
+
+                    {{ form_widget(requestForm.email, {
+                        attr: {
+                            class: 'form-control peer border-secondary focus:ring-tertiary w-full rounded-md border bg-white p-4 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:outline-none',
+                            placeholder: 'password_reset.request.email.placeholder' | trans,
+                            autocomplete: 'email'
+                        }
+                    }) }}
+
+                    {{ form_errors(requestForm.email) }}
+                </div>
+
+                <p class="text-content">
+                    {{ 'password_reset.request.description' | trans }}
+                </p>
+
+                <div class="flex flex-col items-end">
+                    <button
+                        class="btn btn-lg btn-primary text-secondary disabled:bg-grey flex items-center justify-center gap-2 font-bold transition hover:cursor-pointer px-8 py-4 rounded-3xl bg-primary w-fit"
+                        type="submit"
+                    >
+                        {{ 'password_reset.request.submit' | trans }}
+                    </button>
+                </div>
+
+            {{ form_end(requestForm) }}
+
+        </div>
+    </div>
+{% endblock %}

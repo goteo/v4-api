@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OAuth;
+namespace App\OAuth2\Client;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 

@@ -86,6 +86,9 @@ class Reward implements LocalizedInterface
     #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class, cascade: ['persist'])]
     private Collection $claims;
 
+    #[ORM\Column]
+    private ?bool $hasShipping = null;
+
     public function __construct()
     {
         $this->claims = new ArrayCollection();
@@ -245,5 +248,17 @@ class Reward implements LocalizedInterface
         if ($this->isFinite()) {
             $this->unitsAvailable = $this->unitsTotal - $this->unitsClaimed;
         }
+    }
+
+    public function hasShipping(): ?bool
+    {
+        return $this->hasShipping;
+    }
+
+    public function setHasShipping(bool $hasShipping): static
+    {
+        $this->hasShipping = $hasShipping;
+
+        return $this;
     }
 }

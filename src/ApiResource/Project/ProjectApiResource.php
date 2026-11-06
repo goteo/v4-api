@@ -10,6 +10,7 @@ use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\CategoryApiResource;
 use App\ApiResource\LocalizedApiResourceTrait;
 use App\ApiResource\Matchfunding\MatchCallSubmissionApiResource;
+use App\ApiResource\ThemeApiResource;
 use App\ApiResource\TimestampedCreationApiResource;
 use App\ApiResource\TimestampedUpdationApiResource;
 use App\ApiResource\User\UserApiResource;
@@ -23,7 +24,9 @@ use App\Entity\Project\ProjectVideo;
 use App\Entity\Territory;
 use App\Library\Link;
 use App\Mapping\Transformer\BudgetMapTransformer;
+use App\Money\Totalization\TotalizedMoney;
 use App\State\ApiResourceStateProvider;
+use App\State\Project\ProjectMoneyTotalStateProvider;
 use App\State\Project\ProjectStateProcessor;
 use App\State\Project\ProjectStateProvider;
 use AutoMapper\Attribute\MapFrom;
@@ -39,6 +42,28 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ApiResourceStateProvider::class,
 )]
 #[API\GetCollection()]
+#[API\GetCollection(
+    uriTemplate: '/projects/money_total',
+    provider: ProjectMoneyTotalStateProvider::class,
+    output: TotalizedMoney::class,
+    paginationEnabled: false,
+    openapi: new \ApiPlatform\OpenApi\Model\Operation(
+        summary: 'Get money total',
+        description: 'Returns a single TotalizedMoney object with the money raised by the ProjectSupports of the Projects matching the same filters as the Projects collection.',
+        responses: [
+            '200' => new \ApiPlatform\Openapi\Model\Response(
+                description: 'Totalized money',
+                content: new \ArrayObject([
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Project.TotalizedMoney',
+                        ],
+                    ],
+                ]),
+            ),
+        ],
+    )
+)]
 #[API\Post(
     input: ProjectCreationDto::class,
     processor: ProjectStateProcessor::class,
@@ -133,6 +158,16 @@ class ProjectApiResource
     #[API\ApiProperty(writableLink: false)]
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public array $categories;
+
+    /**
+     * A list of the available Themes of this Project.
+     *
+     * @var ThemeApiResource[]
+     */
+    #[Assert\NotBlank()]
+    #[API\ApiProperty(writableLink: false)]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
+    public array $themes;
 
     /**
      * ISO 3166 data about the Project's territory of interest.

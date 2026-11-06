@@ -36,17 +36,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         summary: 'Get charges totals',
         description: 'Returns a single ChargesTotals object with totalized metrics for the charges matching the same filters as the charges collection.',
         responses: [
-            '200' => [
-                'description' => 'Charges totals',
-                'content' => [
+            '200' => new \ApiPlatform\OpenApi\Model\Response(
+                description: 'Charges totals',
+                content: new \ArrayObject([
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/GatewayCharge.ChargesTotalsDto',
                         ],
                     ],
-                ],
-            ],
-        ]
+                ]),
+            ),
+        ],
     ),
 )]
 #[API\Get()]

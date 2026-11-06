@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OAuth;
+namespace App\OAuth2\Client;
 
 use App\Service\UserService;
 use League\OAuth2\Client\Provider\AbstractProvider;
@@ -12,19 +12,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Provides supports for OAuth Authorization Code flows with Decidim instances.
+ * Provides supports for OAuth2 Authorization Code flows with Decidim instances.
  *
  * HOW-TO USE
- * 1. Add a .png image in `public/oauth/providers` dir to show the provider's logo in the login page
+ * 1. Add a .png image in `public/oauth2/providers` dir to show the provider's logo in the login page
  * 2. Add a new provider under `clients` key in `config/packages/knpu_oauth2_client.yaml`:
  * ```yaml
  *  decidim_<instance name>:
  *    type: generic
- *    provider_class: App\OAuth\DecidimProvider
+ *    provider_class: App\OAuth2\Client\DecidimProvider
  *    provider_options:
  *      url: <instance web address>
- *    client_id: "%env(<instance oauth client id>)%"
- *    client_secret: "%env(<instance oauth client secret>)%"
+ *    client_id: "%env(<instance's OAuth2 Client id>)%"
+ *    client_secret: "%env(<instance's OAuth2 Client secret>)%"
  *    redirect_route: oauth_providers_callback
  *    redirect_params:
  *      provider: decidim_<instance name>

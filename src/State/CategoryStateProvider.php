@@ -20,20 +20,14 @@ class CategoryStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $idOrSlug = $uriVariables['idOrSlug'];
-
-        $queryBuilder = $this->categoryRepository->createQueryBuilder('c');
-        $queryBuilder->where(\is_numeric($idOrSlug) ? 'c.id = :value' : 'c.slug = :value');
-        $queryBuilder->setParameter('value', $idOrSlug);
-
+        $queryBuilder = $this->categoryRepository->getByIdOrSlugQuery($uriVariables['idOrSlug']);
         $query = $this->addLocalizationHints($queryBuilder, $this->getAcceptedLanguages($context));
+        $category = $query->getOneOrNullResult();
 
-        $project = $query->getOneOrNullResult();
-
-        if ($project === null) {
+        if ($category === null) {
             return null;
         }
 
-        return $this->autoMapper->map($project, CategoryApiResource::class);
+        return $this->autoMapper->map($category, CategoryApiResource::class);
     }
 }

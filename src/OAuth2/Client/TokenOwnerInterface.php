@@ -1,6 +1,6 @@
 <?php
 
-namespace App\OAuth;
+namespace App\OAuth2\Client;
 
 interface TokenOwnerInterface
 {

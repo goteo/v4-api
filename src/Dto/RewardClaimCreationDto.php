@@ -2,6 +2,7 @@
 
 namespace App\Dto;
 
+use App\ApiResource\AddressApiResource;
 use App\ApiResource\Gateway\ChargeApiResource;
 use App\ApiResource\Project\RewardApiResource;
 use App\Validator\AvailableRewardUnits;
@@ -27,4 +28,9 @@ class RewardClaimCreationDto
     #[Assert\NotBlank()]
     #[AvailableRewardUnits()]
     public RewardApiResource $reward;
+
+    /**
+     * If the reward is a physical object that needs to be delivered to an specific place.
+     */
+    public ?AddressApiResource $address;
 }

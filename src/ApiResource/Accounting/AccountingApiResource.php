@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\Accounting;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\MoneyOutput;
@@ -30,7 +31,11 @@ use AutoMapper\Attribute\MapTo;
 #[API\Get()]
 class AccountingApiResource
 {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     #[API\ApiProperty(identifier: true)]
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     public int $id;
 
     /**

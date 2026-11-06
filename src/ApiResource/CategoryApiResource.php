@@ -12,9 +12,8 @@ use App\State\CategoryStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A Category can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 Categories, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
  * \
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.

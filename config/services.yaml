@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(OAUTH_ACCESS_TOKEN_TTL): PT1H
 
 services:
     # default configuration for services in *this* file
@@ -82,6 +83,10 @@ services:
     App\Security\TestingAuthenticator:
         arguments:
             - '%env(APP_ENV)%'
+
+    App\Service\UserService:
+        arguments:
+            $locale: '%env(APP_LOCALE)%'
 
     App\Service\LocalizationService:
         arguments:

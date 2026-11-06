@@ -8,14 +8,13 @@ use App\Entity\Project\Project;
 use App\Entity\Project\Reward;
 use App\Repository\Project\ProjectRepository;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
-use Goteo\Benzina\Pump\DoctrinePumpTrait;
 use Goteo\Benzina\Pump\PumpInterface;
 
 class ProjectsRewardsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use DatabasePumpTrait;
-    use DoctrinePumpTrait;
+    use DoctrineLoggablePumpTrait;
     use LocalizedPumpTrait;
 
     private const REWARD_KEYS = [
@@ -75,7 +74,8 @@ class ProjectsRewardsPump implements PumpInterface
         $reward->setDescription($record['description'] ?? $record['reward']);
         $reward->setMoney(new EmbeddableMoney($record['amount'] * 100, 'EUR'));
         $reward->setIsFinite($record['units'] > 0);
-        $reward->setUnitsTotal($record['units'] ?? 0);
+        $reward->setUnitsTotal($record['units'] > 0 ? $record['units'] : null);
+        $reward->setHasShipping($record['units'] > 0);
 
         $this->setPreventFlushAndClear(true);
         $this->persist($reward, $context);
