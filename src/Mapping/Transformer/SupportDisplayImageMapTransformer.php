@@ -25,7 +25,7 @@ class SupportDisplayImageMapTransformer implements PropertyTransformerInterface
         };
     }
 
-    private function attemptDisplayImage(AccountingOwnerInterface $owner): string
+    private function attemptDisplayImage(AccountingOwnerInterface $owner): ?string
     {
         if (\method_exists($owner, 'getImage')) {
             return $owner->getImage();
@@ -35,6 +35,6 @@ class SupportDisplayImageMapTransformer implements PropertyTransformerInterface
             return $owner->getIcon();
         }
 
-        throw new \Exception(\sprintf("AccountingOwnerInterface '%s' does not provide a displayable image", $owner::class));
+        return null;
     }
 }

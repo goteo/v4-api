@@ -84,6 +84,12 @@ class MatchCallApiResource
     public string $description;
 
     /**
+     * URL to the image or logo of this MatchCall.
+     */
+    #[Assert\Url()]
+    public ?string $image = null;
+
+    /**
      * Codes for the territory of interest in this MatchCall.
      */
     #[Assert\NotBlank()]
