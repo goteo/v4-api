@@ -16,6 +16,7 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "dompdf/dompdf": "^3",
         "embed/embed": "^4.4",
         "gedmo/doctrine-extensions": "^3.22",
         "goteo/benzina": "^0.6.0",
