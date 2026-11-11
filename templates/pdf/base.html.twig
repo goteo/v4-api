@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Goteo{% endblock %}</title>
+        <style>
+            @page { margin: 2cm; }
+            body { font-family: "DejaVu Sans", sans-serif; font-size: 11pt; }
+            {% block stylesheets %}{% endblock %}
+        </style>
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>
