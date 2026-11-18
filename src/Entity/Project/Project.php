@@ -144,6 +144,17 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private Collection $budgetItems;
 
     /**
+     * The denormalized budget, kept in sync with the BudgetItems by `ProjectBudgetListener`.\
+     * `null` until the first BudgetItem is saved.
+     *
+     * ponytail: single JSON column, move to real columns if budgets need filtering or sorting in SQL.
+     *
+     * @var array{currency: string, minimum: array<string, int>, optimum: array<string, int>}|null
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $budget = null;
+
+    /**
      * @var Collection<int, Update>
      */
     #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
@@ -478,6 +489,21 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getBudgetItems(): Collection
     {
         return $this->budgetItems;
+    }
+
+    /**
+     * @return array{currency?: string, minimum?: array<string, int>, optimum?: array<string, int>} Empty when there are no BudgetItems yet
+     */
+    public function getBudget(): array
+    {
+        return $this->budget ?? [];
+    }
+
+    public function setBudget(?array $budget): static
+    {
+        $this->budget = $budget;
+
+        return $this;
     }
 
     public function addBudgetItem(BudgetItem $budgetItem): static
