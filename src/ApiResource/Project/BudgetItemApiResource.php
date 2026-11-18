@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A Project's budget is composed via BudgetItem records.\
  * \
- * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
+ * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is calculated from the related BudgetItems and updated every time one of them is created, updated or deleted.
  */
 #[API\ApiResource(
     shortName: 'ProjectBudgetItem',

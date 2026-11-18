@@ -225,7 +225,8 @@ class ProjectApiResource
     public array $rewards;
 
     /**
-     * A detailed breakdown of the budget for this Project, as described by the associated BudgetItems.
+     * A detailed breakdown of the budget for this Project, as described by the associated BudgetItems.\
+     * It is updated every time a BudgetItem of this Project is created, updated or deleted.
      */
     #[API\ApiProperty(writable: false)]
     #[MapFrom(source: Project::class, transformer: BudgetMapTransformer::class)]

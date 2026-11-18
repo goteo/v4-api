@@ -73,6 +73,12 @@ class UserApiResource
 {
     use TimestampedCreationApiResource;
     use TimestampedUpdationApiResource;
+    /**
+     * The mapping depth of a User that is not nested inside another resource:
+     * `AutoMapper::DEFAULT_CONTEXT` starts at 1 and every mapper adds 1 on entry.\
+     * Relations limited to this depth are not loaded for nested Users, which are only output as an IRI.
+     */
+    private const ROOT_DEPTH = 2;
 
     #[API\ApiProperty(writable: false, identifier: true)]
     public int $id;
@@ -148,6 +154,7 @@ class UserApiResource
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
+    #[MapFrom(User::class, maxDepth: self::ROOT_DEPTH)]
     public AccountingApiResource $accounting;
 
     /**
@@ -156,6 +163,7 @@ class UserApiResource
      * @var array<int, \App\ApiResource\Project\ProjectApiResource>
      */
     #[API\ApiProperty(writable: false)]
+    #[MapFrom(User::class, maxDepth: self::ROOT_DEPTH)]
     public array $projects;
 
     /**
@@ -225,6 +233,7 @@ class UserApiResource
      * @var CategoryApiResource[]
      */
     #[API\ApiProperty(writableLink: false)]
+    #[MapFrom(User::class, maxDepth: self::ROOT_DEPTH)]
     public array $preferredCategories = [];
 
     /**
@@ -233,5 +242,6 @@ class UserApiResource
      * @var ThemeApiResource[]
      */
     #[API\ApiProperty(writableLink: false)]
+    #[MapFrom(User::class, maxDepth: self::ROOT_DEPTH)]
     public array $preferredThemes = [];
 }
