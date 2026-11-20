@@ -3,6 +3,7 @@
 namespace App\Service\Project;
 
 use App\Entity\Project\BudgetItem;
+use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectDeadline;
 use App\Money\Money;
 use App\Money\MoneyService;
@@ -38,5 +39,34 @@ class BudgetService
             ProjectDeadline::Minimum->value => $totalMinimum,
             ProjectDeadline::Optimum->value => $totalOptimum,
         ];
+    }
+
+    /**
+     * Calculates the totals of a budget, as a whole and by type of item.
+     *
+     * @param BudgetItem[] $items
+     *
+     * @return array{currency: string, minimum: array<string, int>, optimum: array<string, int>} Amounts in minor units
+     */
+    public function summarize(array $items, string $currency): array
+    {
+        $ofType = fn(BudgetItemType $type) => \array_filter($items, fn(BudgetItem $item) => $item->getType() === $type);
+
+        $groups = [
+            'money' => $items,
+            'task' => $ofType(BudgetItemType::Task),
+            'material' => $ofType(BudgetItemType::Material),
+            'infra' => $ofType(BudgetItemType::Infrastructure),
+        ];
+
+        $summary = ['currency' => $currency];
+
+        foreach ($groups as $key => $group) {
+            foreach ($this->calcBudget($group, $currency) as $deadline => $money) {
+                $summary[$deadline][$key] = $money->getAmount();
+            }
+        }
+
+        return $summary;
     }
 }

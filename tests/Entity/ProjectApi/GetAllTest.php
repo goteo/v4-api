@@ -5,6 +5,7 @@ namespace App\Tests\Entity\ProjectApi;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\Territory;
 use App\Factory\Project\ProjectFactory;
+use App\Factory\User\UserFactory;
 use App\Security\TestingAuthenticator;
 use App\Tests\Fixtures\TestUser;
 use Symfony\Component\HttpFoundation\Response;
@@ -292,5 +293,36 @@ class GetAllTest extends ProjectTestCase
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function countQueriesOfGetAll(): int
+    {
+        $client = static::createClient();
+        $response = $client->request($this->getMethod(), self::BASE_URI);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertNotEmpty($response->toArray()['member']);
+
+        $queries = $client->getContainer()->get('doctrine.debug_data_holder')->getData();
+
+        return \count(\array_merge(...\array_values($queries)));
+    }
+
+    public function testGetAllQueriesDoNotGrowWithProjects(): void
+    {
+        $createProject = fn(int $i) => ProjectFactory::createOne([
+            'title' => "Project $i",
+            'owner' => UserFactory::createOne(['handle' => "owner_$i", 'email' => "owner_$i@example.com"]),
+        ]);
+
+        $createProject(1);
+        $queriesWithOne = $this->countQueriesOfGetAll();
+        $this->assertGreaterThan(0, $queriesWithOne);
+
+        foreach (\range(2, 5) as $i) {
+            $createProject($i);
+        }
+
+        $this->assertSame($queriesWithOne, $this->countQueriesOfGetAll());
     }
 }
