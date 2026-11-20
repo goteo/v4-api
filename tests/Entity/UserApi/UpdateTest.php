@@ -4,6 +4,7 @@ namespace App\Tests\Entity\UserApi;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Theme;
+use App\Entity\User\UserRole;
 use App\Entity\User\UserType;
 use App\Factory\CategoryFactory;
 use App\Factory\User\UserFactory;
@@ -95,6 +96,29 @@ class UpdateTest extends ApiTestCase
             'headers' => $this->withAuthHeader($user),
             'json' => ['links' => ['not a url']],
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function testUpdateRolesOnlyAcceptsKnownRoles(): void
+    {
+        $user = TestUser::get();
+        $admin = UserFactory::createOne([
+            'handle' => 'admin',
+            'email' => 'admin@example.com',
+            'roles' => [UserRole::Admin->value],
+        ]);
+        $uri = \sprintf('/v4/users/%d', $user->getId());
+
+        $this->request('PATCH', $uri, [
+            'headers' => $this->withAuthHeader($admin),
+            'json' => ['roles' => ['ROLE_TYPO']],
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->request('PATCH', $uri, [
+            'headers' => $this->withAuthHeader($admin),
+            'json' => ['roles' => [UserRole::Admin->value]],
+        ], Response::HTTP_OK);
+
+        $this->assertJsonContains(['roles' => [UserRole::Admin->value]]);
     }
 
     public function testPrivateFieldsHiddenFromOthers(): void
