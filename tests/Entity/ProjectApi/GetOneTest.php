@@ -4,6 +4,9 @@ namespace App\Tests\Entity\ProjectApi;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Tests\Fixtures\TestUser;
+
+use function Zenstruck\Foundry\Persistence\save;
 
 class GetOneTest extends ProjectTestCase
 {
@@ -32,6 +35,18 @@ class GetOneTest extends ProjectTestCase
 
         $this->assertArrayHasKey('id', $responseData);
         $this->assertArraySubset($expectedData, $responseData);
+    }
+
+    private function createProjectWithUserOwnedAccounting(): array
+    {
+        $project = $this->createTestProjectOptimized(1)[0];
+        $owner = TestUser::get();
+        $userAccounting = $owner->getAccounting();
+
+        $project->setAccounting($userAccounting);
+        save($project);
+
+        return [$project, $owner, $userAccounting];
     }
 
     // TESTS
@@ -71,6 +86,38 @@ class GetOneTest extends ProjectTestCase
     public function testGetOneFilteredByStatusFunded(): void
     {
         $this->testGetOneFilteredByStatus(ProjectStatus::FundingPaid);
+    }
+
+    public function testGetOneEmbedsAccounting(): void
+    {
+        $project = $this->createTestProjectOptimized(1)[0];
+        $responseData = $this->request('GET', $this->getUri($project->getId()))->toArray();
+
+        $this->assertIsArray($responseData['accounting']);
+        $this->assertSame('Accounting', $responseData['accounting']['@type']);
+        $this->assertSame($project->getAccounting()->getId(), $responseData['accounting']['id']);
+        $this->assertSame($responseData['accounting']['currency'], $responseData['accounting']['balance']['currency']);
+    }
+
+    public function testGetOneHidesPrivateAccountingBalanceWithoutAuthentication(): void
+    {
+        [$project, , $userAccounting] = $this->createProjectWithUserOwnedAccounting();
+        $responseData = $this->request('GET', $this->getUri($project->getId()))->toArray();
+
+        $this->assertSame($userAccounting->getId(), $responseData['accounting']['id']);
+        $this->assertArrayNotHasKey('balance', $responseData['accounting']);
+    }
+
+    public function testGetOneShowsPrivateAccountingBalanceToItsOwner(): void
+    {
+        [$project, $owner, $userAccounting] = $this->createProjectWithUserOwnedAccounting();
+        $responseData = $this->request('GET', $this->getUri($project->getId()), [
+            'headers' => $this->withAuthHeader($owner),
+        ])->toArray();
+
+        $this->assertSame($userAccounting->getId(), $responseData['accounting']['id']);
+        $this->assertArrayHasKey('balance', $responseData['accounting']);
+        $this->assertSame($userAccounting->getCurrency(), $responseData['accounting']['balance']['currency']);
     }
 
     public function testGetOneUnauthorized(): void

@@ -172,6 +172,18 @@ class GetAllTest extends ProjectTestCase
         $this->assertCount(max($numberOfProjectsInPage, 0), $responseData['member']);
     }
 
+    public function testGetAllEmbedsAccounting(): void
+    {
+        $this->createTestProjectOptimized(1);
+
+        $responseData = $this->request('GET', self::BASE_URI)->toArray();
+        $accounting = $responseData['member'][0]['accounting'];
+
+        $this->assertIsArray($accounting);
+        $this->assertSame('Accounting', $accounting['@type']);
+        $this->assertArrayHasKey('balance', $accounting);
+    }
+
     public function testGetAllDefaultsFirstPage(): void
     {
         $itemsPerPage = 2;

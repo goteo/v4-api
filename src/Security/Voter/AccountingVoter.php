@@ -40,7 +40,7 @@ class AccountingVoter extends Voter
             case User::class:
                 return $this->voteOnUser($attribute, $accounting->getOwner(), $user);
             default:
-                return $this->voteOn($attribute, $accounting, $user);
+                return $this->voteOn($attribute, $subject, $user);
         }
     }
 
@@ -65,7 +65,7 @@ class AccountingVoter extends Voter
             case self::EDIT:
             case self::VIEW:
                 return $this->security->isGranted('ROLE_ADMIN', $user)
-                    || $this->isOwnerOf($owner, $user);
+                    || $owner->getId() === $user->getId();
         }
 
         return false;
