@@ -1,0 +1,89 @@
+name: Release version
+
+on:
+  workflow_dispatch:
+    inputs:
+      appname:
+        description: 'CapRover application to deploy'
+        required: true
+        type: choice
+        options:
+          - api-testing01
+          - api-staging
+          - api
+        default: api-testing01
+
+permissions:
+  contents: read # This is required for actions/checkout
+
+env:
+  DOCKERFILE: docker/main/Dockerfile
+
+jobs:
+  build-and-publish:
+    if: github.event_name == 'workflow_dispatch'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout repository code
+        uses: actions/checkout@v6
+
+      # https://github.com/docker/login-action
+      - name: Login to private GitHub Container Registry
+        uses: docker/login-action@v4.1.0
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Generate image tag
+        id: vars
+        run: |
+          REGISTRY="${{ secrets.REGISTRY_URL }}"
+          REPO="${{ secrets.REPOSITORY_NAME }}"
+          APP="${{ github.event.inputs.appname }}"
+
+          TAG=$(git rev-parse --short HEAD)
+          IMAGE_NAME="$REGISTRY/$REPO/img-gha-$APP:$TAG"
+
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          tags: ${{ steps.vars.outputs.image_name }}
+
+      - name: Select CapRover token according to application name
+        id: token
+        run: |
+          case "${{ github.event.inputs.appname }}" in
+            api-testing01)
+              echo "token=${{ secrets.CAPROVER_APP_TOKEN_TESTING01 }}" >> $GITHUB_OUTPUT
+              ;;
+            api-staging)
+              echo "token=${{ secrets.CAPROVER_APP_TOKEN_STAGING }}" >> $GITHUB_OUTPUT
+              ;;
+            api)
+              echo "token=${{ secrets.CAPROVER_APP_TOKEN_PROD }}" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "Unknown appname" >&2
+              exit 1
+              ;;
+          esac
+
+      # https://github.com/caprover/deploy-from-github
+      - name: Deploy to CapRover
+        uses: caprover/deploy-from-github@1.2.0
+        with:
+          server: ${{ secrets.CAPROVER_HOST }}
+          app: ${{ github.event.inputs.appname }}
+          token: ${{ steps.token.outputs.token }}
+          image: ${{ steps.vars.outputs.image_name }}

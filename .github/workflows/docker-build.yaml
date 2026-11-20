@@ -1,0 +1,43 @@
+name: Docker Build
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+env:
+  DOCKERFILE: docker/main/Dockerfile
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout repository code
+        uses: actions/checkout@v6
+
+      - name: Generate image tag
+        id: vars
+        run: |
+          REGISTRY="sample-registry.domain.es"
+          REPO="sample-repo"
+          APP="sample-app"
+
+          TAG=$(git rev-parse --short HEAD)
+          IMAGE_NAME="$REGISTRY/$REPO/img-gha-$APP:$TAG"
+
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          push: false
+          tags: ${{ steps.vars.outputs.image_name }}
+
+      - name: Show image details
+        run: docker images ${{ steps.vars.outputs.image_name }}
