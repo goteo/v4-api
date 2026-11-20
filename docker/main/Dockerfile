@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine AS system-setup
+FROM php:8.3-fpm-alpine3.24 AS system-setup
 
 RUN apk --no-cache add \
     curl \
