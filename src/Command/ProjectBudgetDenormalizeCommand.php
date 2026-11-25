@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:project:budget:denormalize',
-    description: 'Recalculates the budget stored with every Project from its BudgetItems. Run with --no-debug, debug mode runs out of memory on large databases',
+    description: 'Calculates the stored budget of the Projects that do not have it yet from their BudgetItems. Safe to interrupt and run again. Run with --no-debug, debug mode runs out of memory on large databases',
 )]
 class ProjectBudgetDenormalizeCommand extends Command
 {
@@ -31,7 +31,8 @@ class ProjectBudgetDenormalizeCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $ids = $this->entityManager
-            ->createQuery(\sprintf('SELECT p.id FROM %s p ORDER BY p.id', Project::class))
+            // Only Projects never calculated, so an interrupted run resumes where it stopped
+            ->createQuery(\sprintf('SELECT p.id FROM %s p WHERE p.budget.currency IS NULL ORDER BY p.id', Project::class))
             ->getSingleColumnResult();
 
         foreach (\array_chunk($ids, self::BATCH_SIZE) as $batch) {

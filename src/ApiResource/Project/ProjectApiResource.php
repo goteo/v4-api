@@ -230,6 +230,7 @@ class ProjectApiResource
      */
     #[API\ApiProperty(writable: false)]
     #[MapFrom(source: Project::class, transformer: BudgetMapTransformer::class)]
+    #[MapTo(Project::class, ignore: true)]
     public Budget $budget;
 
     /**

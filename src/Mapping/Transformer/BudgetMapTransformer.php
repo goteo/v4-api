@@ -6,6 +6,7 @@ use App\ApiResource\MoneyOutput;
 use App\ApiResource\Project\Budget;
 use App\ApiResource\Project\BudgetSummary;
 use App\Entity\Project\Project;
+use App\Entity\Project\ProjectBudget;
 use App\Entity\Project\ProjectDeadline;
 use AutoMapper\Transformer\PropertyTransformer\PropertyTransformerInterface;
 
@@ -22,24 +23,22 @@ class BudgetMapTransformer implements PropertyTransformerInterface
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
         $stored = $source->getBudget();
-        $currency = $stored['currency'] ?? $source->getAccounting()->getCurrency();
+        $currency = $stored->currency ?? $source->getAccounting()->getCurrency();
 
         $budget = new Budget();
-        $budget->minimum = $this->getSummary($stored[ProjectDeadline::Minimum->value] ?? [], $currency);
-        $budget->optimum = $this->getSummary($stored[ProjectDeadline::Optimum->value] ?? [], $currency);
+        $budget->minimum = $this->getSummary($stored, ProjectDeadline::Minimum, $currency);
+        $budget->optimum = $this->getSummary($stored, ProjectDeadline::Optimum, $currency);
 
         return $budget;
     }
 
-    /**
-     * @param array<string, int> $amounts
-     */
-    private function getSummary(array $amounts, string $currency): BudgetSummary
+    private function getSummary(ProjectBudget $stored, ProjectDeadline $deadline, string $currency): BudgetSummary
     {
         $summary = new BudgetSummary();
 
         foreach (['money', 'task', 'material', 'infra'] as $key) {
-            $summary->$key = new MoneyOutput($amounts[$key] ?? 0, $currency, null);
+            $amount = $stored->{$deadline->value.\ucfirst($key)} ?? 0;
+            $summary->$key = new MoneyOutput($amount, $currency, null);
         }
 
         return $summary;
