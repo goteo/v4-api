@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine AS system-setup
+FROM php:8.3-fpm-alpine3.24 AS system-setup
 
 RUN apk --no-cache add \
     curl \
@@ -49,7 +49,7 @@ ENV PHP_SESSION_SAVE_PATH=
 ENV PHP_DISPLAY_ERRORS=0
 ENV PHP_DISPLAY_STARTUP_ERRORS=0
 
-FROM node:24-alpine AS assets
+FROM node:24-alpine3.24 AS assets
 
 WORKDIR /app
 

@@ -11,7 +11,7 @@ services:
       - ./docker/dev/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
 
   nginx:
-    image: nginx:alpine
+    image: nginx:1.31.9-alpine3.24
     container_name: goteo-api-nginx
     volumes:
       - .:/app
