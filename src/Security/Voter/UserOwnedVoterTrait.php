@@ -40,6 +40,10 @@ trait UserOwnedVoterTrait
             return $subject->isOwnedBy($user);
         }
 
+        if ($subject instanceof User) {
+            return $subject->getId() === $user->getId();
+        }
+
         if (!\property_exists($subject, 'owner')) {
             return false;
         }

@@ -65,7 +65,7 @@ class AccountingVoter extends Voter
             case self::EDIT:
             case self::VIEW:
                 return $this->security->isGranted('ROLE_ADMIN', $user)
-                    || $owner->getId() === $user->getId();
+                    || $this->isOwnerOf($owner, $user);
         }
 
         return false;
