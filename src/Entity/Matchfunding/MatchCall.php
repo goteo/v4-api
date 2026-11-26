@@ -51,6 +51,9 @@ class MatchCall implements AccountingOwnerInterface
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $image = null;
+
     #[ORM\Embedded(class: Territory::class)]
     private ?Territory $territory = null;
 
@@ -208,6 +211,18 @@ class MatchCall implements AccountingOwnerInterface
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }
