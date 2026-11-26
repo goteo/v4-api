@@ -6,6 +6,7 @@ use App\Entity\Territory;
 use App\Entity\User\Organization;
 use App\Entity\User\Person;
 use App\Entity\User\User;
+use App\Entity\User\UserRole;
 use App\Entity\User\UserType;
 use App\Library\Link;
 use App\Service\Project\TerritoryService;
@@ -226,7 +227,7 @@ class UsersPump implements PumpInterface
         $roles = [];
         foreach ($results as $result) {
             if (in_array($result['role_id'], ['superadmin', 'manager'])) {
-                $roles[] = 'ROLE_ADMIN';
+                $roles[] = UserRole::Admin->value;
             }
         }
 

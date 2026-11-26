@@ -10,6 +10,7 @@ use App\Dto\CategorizedInputDtoTrait;
 use App\Entity\Territory;
 use App\Entity\User\User;
 use App\Entity\User\UserReferralSource;
+use App\Entity\User\UserRole;
 use App\Entity\User\UserType;
 use App\Mapping\Transformer\RawLinksMapTransformer;
 use App\Validator\NotExisting;
@@ -54,11 +55,13 @@ final class UserUpdationDto
     public UserType $type;
 
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
+     * A list of the roles assigned to this User. Admin scoped property.\
+     * Only the listed role names are accepted.
      *
      * @var array<int, string>
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
+    #[Assert\Choice(callback: [UserRole::class, 'values'], multiple: true)]
     public array $roles;
 
     /**
