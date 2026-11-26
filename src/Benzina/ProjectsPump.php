@@ -112,6 +112,8 @@ class ProjectsPump implements PumpInterface
             $project->addTheme($theme);
         }
 
+        $project->setSdgs($this->getProjectSdgs($record, $context));
+
         $this->setPreventFlushAndClear(true);
         $this->persist($project, $context);
 
@@ -431,5 +433,23 @@ class ProjectsPump implements PumpInterface
         $categories = $catsQuery->fetchAll();
 
         return $this->mapOldCategoriesToThemes($socialCommitment['name'] ?? '', $categories);
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getProjectSdgs(array $record, array $context): array
+    {
+        $query = $this->getDbConnection($context)->prepare(
+            'SELECT `sdg_id` FROM `sdg_project` WHERE `project_id` = :project'
+        );
+
+        $query->execute(['project' => $record['id']]);
+
+        // v3 `sdg` ids are the UN goal numbers
+        return \array_filter(
+            \array_map('intval', $query->fetchAll(\PDO::FETCH_COLUMN)),
+            fn($sdg) => $sdg >= 1 && $sdg <= 17
+        );
     }
 }
