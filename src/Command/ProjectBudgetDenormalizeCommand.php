@@ -32,7 +32,7 @@ class ProjectBudgetDenormalizeCommand extends Command
 
         $ids = $this->entityManager
             // Only Projects never calculated, so an interrupted run resumes where it stopped
-            ->createQuery(\sprintf('SELECT p.id FROM %s p WHERE p.budget.currency IS NULL ORDER BY p.id', Project::class))
+            ->createQuery(\sprintf('SELECT p.id FROM %s p WHERE p.budget.minimumMoney.currency IS NULL ORDER BY p.id', Project::class))
             ->getSingleColumnResult();
 
         foreach (\array_chunk($ids, self::BATCH_SIZE) as $batch) {

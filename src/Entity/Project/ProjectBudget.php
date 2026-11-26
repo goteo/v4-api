@@ -2,39 +2,37 @@
 
 namespace App\Entity\Project;
 
+use App\Entity\EmbeddableMoney;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Denormalized totals of the BudgetItems of a Project, kept in sync by `ProjectBudgetListener`.\
- * Amounts are in minor units of `currency`. All `null` until first calculated.
+ * All `null` until first calculated.
  */
 #[ORM\Embeddable]
 class ProjectBudget
 {
-    #[ORM\Column(nullable: true)]
-    public ?string $currency = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $minimumMoney = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $minimumMoney = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $minimumTask = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $minimumTask = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $minimumMaterial = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $minimumMaterial = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $minimumInfra = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $minimumInfra = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $optimumMoney = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $optimumMoney = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $optimumTask = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $optimumTask = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $optimumMaterial = null;
 
-    #[ORM\Column(nullable: true)]
-    public ?int $optimumMaterial = null;
-
-    #[ORM\Column(nullable: true)]
-    public ?int $optimumInfra = null;
+    #[ORM\Embedded(class: EmbeddableMoney::class)]
+    public ?EmbeddableMoney $optimumInfra = null;
 }

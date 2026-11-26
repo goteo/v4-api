@@ -23,7 +23,7 @@ class BudgetMapTransformer implements PropertyTransformerInterface
     public function transform(mixed $value, object|array $source, array $context): mixed
     {
         $stored = $source->getBudget();
-        $currency = $stored->currency ?? $source->getAccounting()->getCurrency();
+        $currency = $source->getAccounting()->getCurrency();
 
         $budget = new Budget();
         $budget->minimum = $this->getSummary($stored, ProjectDeadline::Minimum, $currency);
@@ -37,8 +37,10 @@ class BudgetMapTransformer implements PropertyTransformerInterface
         $summary = new BudgetSummary();
 
         foreach (['money', 'task', 'material', 'infra'] as $key) {
-            $amount = $stored->{$deadline->value.\ucfirst($key)} ?? 0;
-            $summary->$key = new MoneyOutput($amount, $currency, null);
+            $money = $stored->{$deadline->value.\ucfirst($key)};
+            $summary->$key = $money?->amount !== null
+                ? MoneyOutput::of($money)
+                : new MoneyOutput(0, $currency, null);
         }
 
         return $summary;

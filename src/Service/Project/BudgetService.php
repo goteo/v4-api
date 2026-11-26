@@ -2,6 +2,7 @@
 
 namespace App\Service\Project;
 
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItem;
 use App\Entity\Project\BudgetItemType;
 use App\Entity\Project\ProjectBudget;
@@ -59,11 +60,10 @@ class BudgetService
         ];
 
         $budget = new ProjectBudget();
-        $budget->currency = $currency;
 
         foreach ($groups as $key => $group) {
             foreach ($this->calcBudget($group, $currency) as $deadline => $money) {
-                $budget->{$deadline.\ucfirst($key)} = $money->getAmount();
+                $budget->{$deadline.\ucfirst($key)} = EmbeddableMoney::of($money);
             }
         }
 
