@@ -40,7 +40,7 @@ class AccountingVoter extends Voter
             case User::class:
                 return $this->voteOnUser($attribute, $accounting->getOwner(), $user);
             default:
-                return $this->voteOn($attribute, $accounting, $user);
+                return $this->voteOn($attribute, $subject, $user);
         }
     }
 
