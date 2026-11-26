@@ -144,6 +144,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private Collection $budgetItems;
 
     /**
+     * The denormalized budget, kept in sync with the BudgetItems by `ProjectBudgetListener`.
+     */
+    #[ORM\Embedded(class: ProjectBudget::class)]
+    private ?ProjectBudget $budget = null;
+
+    /**
      * @var Collection<int, Update>
      */
     #[ORM\OneToMany(targetEntity: Update::class, mappedBy: 'project', cascade: ['persist'])]
@@ -478,6 +484,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function getBudgetItems(): Collection
     {
         return $this->budgetItems;
+    }
+
+    public function getBudget(): ProjectBudget
+    {
+        return $this->budget ?? new ProjectBudget();
+    }
+
+    public function setBudget(ProjectBudget $budget): static
+    {
+        $this->budget = $budget;
+
+        return $this;
     }
 
     public function addBudgetItem(BudgetItem $budgetItem): static

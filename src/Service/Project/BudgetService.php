@@ -2,7 +2,10 @@
 
 namespace App\Service\Project;
 
+use App\Entity\EmbeddableMoney;
 use App\Entity\Project\BudgetItem;
+use App\Entity\Project\BudgetItemType;
+use App\Entity\Project\ProjectBudget;
 use App\Entity\Project\ProjectDeadline;
 use App\Money\Money;
 use App\Money\MoneyService;
@@ -38,5 +41,32 @@ class BudgetService
             ProjectDeadline::Minimum->value => $totalMinimum,
             ProjectDeadline::Optimum->value => $totalOptimum,
         ];
+    }
+
+    /**
+     * Calculates the totals of a budget, as a whole and by type of item.
+     *
+     * @param BudgetItem[] $items
+     */
+    public function summarize(array $items, string $currency): ProjectBudget
+    {
+        $ofType = fn(BudgetItemType $type) => \array_filter($items, fn(BudgetItem $item) => $item->getType() === $type);
+
+        $groups = [
+            'money' => $items,
+            'task' => $ofType(BudgetItemType::Task),
+            'material' => $ofType(BudgetItemType::Material),
+            'infra' => $ofType(BudgetItemType::Infrastructure),
+        ];
+
+        $budget = new ProjectBudget();
+
+        foreach ($groups as $key => $group) {
+            foreach ($this->calcBudget($group, $currency) as $deadline => $money) {
+                $budget->{$deadline.\ucfirst($key)} = EmbeddableMoney::of($money);
+            }
+        }
+
+        return $budget;
     }
 }
