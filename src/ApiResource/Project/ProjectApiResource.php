@@ -103,7 +103,7 @@ class ProjectApiResource
     /**
      * The Accounting holding the funds raised by this Project.
      */
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, readableLink: true)]
     #[API\ApiFilter(SearchFilter::class, strategy: 'exact')]
     public AccountingApiResource $accounting;
 
