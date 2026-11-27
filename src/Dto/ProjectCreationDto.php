@@ -51,6 +51,17 @@ class ProjectCreationDto
     public array $themes;
 
     /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     *
+     * @var int[]
+     */
+    #[Assert\Count(max: 3)]
+    #[Assert\Unique]
+    #[Assert\All([new Assert\Type('integer'), new Assert\Range(min: 1, max: 17)])]
+    #[API\ApiProperty(openapiContext: ['items' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 17]])]
+    public array $sdgs;
+
+    /**
      * ISO 3166 data about the Project's territory of interest.
      */
     #[Assert\Valid()]

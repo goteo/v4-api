@@ -78,6 +78,16 @@ class GetOneTest extends ProjectTestCase
         $this->testSuccessfulGetOneBase($project);
     }
 
+    public function testGetOneHasEmptySdgs(): void
+    {
+        $this->createTestProjectOptimized(1);
+
+        $response = $this->request('GET', $this->getUri(1));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], \json_decode($response->getContent(), true)['sdgs']);
+    }
+
     public function testGetOneFilteredByStatusInFunding(): void
     {
         $this->testGetOneFilteredByStatus(ProjectStatus::InFunding);

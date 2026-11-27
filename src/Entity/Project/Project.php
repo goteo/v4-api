@@ -177,6 +177,14 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private ?array $links = null;
 
     /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     *
+     * @var int[]
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $sdgs = [];
+
+    /**
      * @var Collection<int, Theme>
      */
     #[ORM\ManyToMany(targetEntity: Theme::class, cascade: ['persist'])]
@@ -656,6 +664,27 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setLinks(?array $links): static
     {
         $this->links = $links;
+
+        return $this;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getSdgs(): array
+    {
+        return $this->sdgs;
+    }
+
+    /**
+     * @param int[] $sdgs
+     */
+    public function setSdgs(array $sdgs): static
+    {
+        $sdgs = \array_values(\array_unique(\array_map('intval', $sdgs)));
+        \sort($sdgs);
+
+        $this->sdgs = $sdgs;
 
         return $this;
     }

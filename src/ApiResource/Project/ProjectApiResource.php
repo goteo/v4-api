@@ -272,6 +272,13 @@ class ProjectApiResource
     #[MapFrom(Project::class, transformer: [self::class, 'parseLinks'])]
     public array $links = [];
 
+    /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     *
+     * @var int[]
+     */
+    public array $sdgs = [];
+
     public static function parseLinks(array $values)
     {
         return \array_map(fn($value) => Link::tryFrom($value), $values);
